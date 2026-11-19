@@ -1,0 +1,582 @@
+<!DOCTYPE html>
+<html lang="es">
+<head>
+<meta charset="utf-8">
+<meta name="viewport" content="width=device-width, initial-scale=1">
+<title>Cartera de Edificios</title>
+<link rel="preconnect" href="https://fonts.googleapis.com">
+<link rel="preconnect" href="https://fonts.gstatic.com" crossorigin>
+<link href="https://fonts.googleapis.com/css2?family=IBM+Plex+Sans:wght@400;500;600&family=Manrope:wght@600;700;800&display=swap" rel="stylesheet">
+<style>
+/* Layout: sidebar de navegación + área de trabajo; resumen primero, detalle en tablas. */
+:root{
+  --bg:#f3f5f6; --surface:#ffffff; --ink:#17232a; --muted:#5d6b73; --line:#dde3e6;
+  --accent:#1f6470; --accent-ink:#ffffff; --accent-soft:#e2eff1;
+  --ok:#2c7a4b; --ok-soft:#e3f2e8; --warn:#9a6a00; --warn-soft:#fbf0d4; --bad:#b4372e; --bad-soft:#f9e3e1; --idle:#6c7780; --idle-soft:#eceff1;
+  --display:"Manrope", "Segoe UI", system-ui, sans-serif;
+  --body:"IBM Plex Sans", "Segoe UI", system-ui, sans-serif;
+  --radius:10px;
+  color-scheme:light;
+}
+@media (prefers-color-scheme: dark){
+  :root:not([data-theme="light"]){
+    --bg:#0f1619; --surface:#172126; --ink:#e4ebee; --muted:#93a3ab; --line:#2a373d;
+    --accent:#5fb3c0; --accent-ink:#0b1417; --accent-soft:#1c3338;
+    --ok:#6cc790; --ok-soft:#173326; --warn:#e3b54a; --warn-soft:#352b12; --bad:#f08379; --bad-soft:#3a1d1a; --idle:#9aa6ad; --idle-soft:#232e33;
+    color-scheme:dark;
+  }
+}
+:root[data-theme="dark"]{
+  --bg:#0f1619; --surface:#172126; --ink:#e4ebee; --muted:#93a3ab; --line:#2a373d;
+  --accent:#5fb3c0; --accent-ink:#0b1417; --accent-soft:#1c3338;
+  --ok:#6cc790; --ok-soft:#173326; --warn:#e3b54a; --warn-soft:#352b12; --bad:#f08379; --bad-soft:#3a1d1a; --idle:#9aa6ad; --idle-soft:#232e33;
+  color-scheme:dark;
+}
+*{box-sizing:border-box}
+html,body{height:100%;margin:0}
+body{background:var(--bg);color:var(--ink);font:15px/1.5 var(--body);}
+h1,h2,h3{font-family:var(--display);text-wrap:balance;margin:0;letter-spacing:-.01em}
+h1{font-size:24px} h2{font-size:17px} h3{font-size:15px}
+button,input,select,textarea{font:inherit;color:inherit}
+:focus-visible{outline:2px solid var(--accent);outline-offset:2px}
+.app{display:grid;grid-template-columns:220px 1fr;min-height:100%}
+nav.side{background:var(--surface);border-right:1px solid var(--line);padding:20px 14px;display:flex;flex-direction:column;gap:4px;position:sticky;top:0;height:100vh}
+.brand{font-family:var(--display);font-weight:800;font-size:17px;padding:4px 10px 18px;display:flex;gap:10px;align-items:center}
+.brand svg{flex:none}
+nav.side a{display:flex;justify-content:space-between;align-items:center;padding:9px 10px;border-radius:8px;color:var(--muted);text-decoration:none;font-weight:500}
+nav.side a:hover{background:var(--bg);color:var(--ink)}
+nav.side a.on{background:var(--accent-soft);color:var(--accent)}
+nav.side a .n{font-size:12px;font-variant-numeric:tabular-nums;opacity:.8}
+.side .foot{margin-top:auto;font-size:12px;color:var(--muted);padding:10px}
+main{padding:28px 32px 60px;min-width:0;display:flex;flex-direction:column;gap:20px}
+.head{display:flex;justify-content:space-between;align-items:flex-end;gap:16px;flex-wrap:wrap}
+.head p{margin:4px 0 0;color:var(--muted)}
+.btn{border:1px solid var(--line);background:var(--surface);padding:8px 14px;border-radius:8px;cursor:pointer;font-weight:500;white-space:nowrap}
+.btn:hover{border-color:var(--muted)}
+.btn.primary{background:var(--accent);border-color:var(--accent);color:var(--accent-ink)}
+.btn.primary:hover{filter:brightness(1.08)}
+.btn.danger{color:var(--bad)}
+.btn.sm{padding:4px 10px;font-size:13px}
+.btn:disabled{opacity:.5;cursor:not-allowed}
+.link{background:none;border:0;padding:0;color:var(--accent);cursor:pointer;font-weight:500;text-align:left}
+.link:hover{text-decoration:underline}
+.card{background:var(--surface);border:1px solid var(--line);border-radius:var(--radius);padding:18px}
+.card > h2{margin-bottom:12px}
+.kpis{display:grid;grid-template-columns:repeat(auto-fit,minmax(170px,1fr));gap:12px}
+.kpi{background:var(--surface);border:1px solid var(--line);border-radius:var(--radius);padding:14px 16px}
+.kpi .l{font-size:12px;color:var(--muted);text-transform:uppercase;letter-spacing:.05em;font-weight:600}
+.kpi .v{font-family:var(--display);font-size:26px;font-weight:700;font-variant-numeric:tabular-nums;margin-top:2px}
+.kpi .s{font-size:13px;color:var(--muted)}
+.kpi.alert{border-left:4px solid var(--warn)}
+.grid2{display:grid;grid-template-columns:repeat(auto-fit,minmax(340px,1fr));gap:16px}
+.tbl-wrap{overflow-x:auto;background:var(--surface);border:1px solid var(--line);border-radius:var(--radius)}
+.card .tbl-wrap{border:0;border-radius:0;margin:0 -18px -18px}
+table{width:100%;border-collapse:collapse;font-variant-numeric:tabular-nums}
+th{text-align:left;font-size:12px;text-transform:uppercase;letter-spacing:.05em;color:var(--muted);font-weight:600;padding:10px 14px;border-bottom:1px solid var(--line);white-space:nowrap}
+td{padding:10px 14px;border-bottom:1px solid var(--line);vertical-align:middle}
+tr:last-child td{border-bottom:0}
+td.num,th.num{text-align:right}
+td.act{text-align:right;white-space:nowrap}
+td.act .btn{margin-left:4px}
+.sub{font-size:13px;color:var(--muted)}
+.pill{display:inline-block;padding:2px 9px;border-radius:999px;font-size:12px;font-weight:600;white-space:nowrap}
+.pill.ok{background:var(--ok-soft);color:var(--ok)}
+.pill.warn{background:var(--warn-soft);color:var(--warn)}
+.pill.bad{background:var(--bad-soft);color:var(--bad)}
+.pill.idle{background:var(--idle-soft);color:var(--idle)}
+.pill.info{background:var(--accent-soft);color:var(--accent)}
+.bar{height:8px;border-radius:99px;background:var(--idle-soft);overflow:hidden;min-width:80px}
+.bar i{display:block;height:100%;background:var(--accent);border-radius:99px}
+.occ{display:flex;align-items:center;gap:10px}
+.occ span{font-size:13px;font-variant-numeric:tabular-nums;min-width:38px;text-align:right}
+.filters{display:flex;gap:10px;flex-wrap:wrap;align-items:center}
+.filters input,.filters select{border:1px solid var(--line);background:var(--surface);border-radius:8px;padding:7px 10px}
+.filters input{min-width:220px}
+.bcards{display:grid;grid-template-columns:repeat(auto-fill,minmax(280px,1fr));gap:14px}
+.bcard{display:flex;flex-direction:column;gap:12px}
+.bcard .addr{color:var(--muted);font-size:14px;margin-top:2px}
+.bstats{display:grid;grid-template-columns:repeat(3,1fr);gap:8px;font-variant-numeric:tabular-nums}
+.bstats div{font-size:12px;color:var(--muted)}
+.bstats b{display:block;font-size:16px;color:var(--ink);font-family:var(--display)}
+.bcard .row{display:flex;gap:6px;flex-wrap:wrap;margin-top:auto}
+.empty{text-align:center;padding:40px 20px;color:var(--muted)}
+.empty h2{color:var(--ink);margin-bottom:6px}
+.empty .btn{margin-top:14px}
+.banner{border-radius:var(--radius);padding:10px 14px;display:flex;gap:12px;align-items:center;justify-content:space-between;flex-wrap:wrap;font-size:14px}
+.banner.warn{background:var(--warn-soft);color:var(--warn)}
+.banner.info{background:var(--accent-soft);color:var(--accent)}
+.list{display:flex;flex-direction:column}
+.list .it{display:flex;justify-content:space-between;gap:10px;padding:9px 0;border-bottom:1px solid var(--line);align-items:center}
+.list .it:last-child{border-bottom:0}
+/* modal */
+.scrim{position:fixed;inset:0;background:rgba(10,20,25,.45);display:flex;align-items:flex-start;justify-content:center;padding:6vh 16px;z-index:20;overflow:auto}
+.modal{background:var(--surface);border-radius:12px;width:min(560px,100%);box-shadow:0 20px 50px rgba(0,0,0,.25);border:1px solid var(--line)}
+.modal header{padding:18px 20px 0;display:flex;justify-content:space-between;align-items:center}
+.modal .body{padding:16px 20px;display:grid;grid-template-columns:1fr 1fr;gap:12px 14px}
+.modal .body p{grid-column:1/-1;margin:0}
+.modal footer{padding:0 20px 18px;display:flex;justify-content:flex-end;gap:8px}
+.fld{display:flex;flex-direction:column;gap:4px}
+.fld.full{grid-column:1/-1}
+.fld label{font-size:13px;font-weight:600;color:var(--muted)}
+.fld input,.fld select,.fld textarea{border:1px solid var(--line);background:var(--bg);border-radius:8px;padding:8px 10px;width:100%}
+.fld textarea{min-height:70px;resize:vertical}
+.err{grid-column:1/-1;color:var(--bad);background:var(--bad-soft);padding:8px 12px;border-radius:8px;font-size:14px}
+.x{background:none;border:0;font-size:22px;line-height:1;cursor:pointer;color:var(--muted)}
+.toast{position:fixed;bottom:20px;left:50%;transform:translateX(-50%);background:var(--ink);color:var(--bg);padding:10px 16px;border-radius:8px;font-size:14px;z-index:30}
+@media (max-width:760px){
+  .app{grid-template-columns:1fr}
+  nav.side{position:sticky;top:0;height:auto;flex-direction:row;overflow-x:auto;padding:8px 10px;border-right:0;border-bottom:1px solid var(--line);z-index:5}
+  .brand,.side .foot{display:none}
+  nav.side a{white-space:nowrap}
+  main{padding:18px 16px 50px}
+  .modal .body{grid-template-columns:1fr}
+  .filters input{min-width:0;flex:1}
+}
+@media (prefers-reduced-motion:reduce){*{transition:none!important;animation:none!important}}
+</style>
+</head>
+<body>
+<div class="app">
+  <nav class="side" id="nav"></nav>
+  <main id="main"></main>
+</div>
+<div id="modal-root"></div>
+<script>
+"use strict";
+/* ---------- estado ---------- */
+const COLS = ["edificios","unidades","inquilinos","contratos"];
+const S = {edificios:[],unidades:[],inquilinos:[],contratos:[]};
+let modo = "cargando"; // "db" | "local" | "cargando"
+let aviso = "";
+let puedeEscribir = true;
+let DB = null;
+const UI = {fEdif:"", fEstado:"", qUni:"", qInq:"", qCon:"", fCon:"activos"};
+const VISTAS = [
+  ["panel","Panel"],["edificios","Edificios"],["unidades","Unidades"],["inquilinos","Inquilinos"],["contratos","Contratos"]
+];
+const TIPOS_UNIDAD = ["Departamento","Local comercial","Oficina","Parqueo","Depósito","Otro"];
+const TIPOS_DOC = ["CI","NIT","Pasaporte","Otro"];
+const DIAS_AVISO = 60;
+
+/* ---------- utilidades ---------- */
+const esc = s => String(s ?? "").replace(/[&<>"']/g, c => ({"&":"&amp;","<":"&lt;",">":"&gt;",'"':"&quot;","'":"&#39;"}[c]));
+function hoy(){ const d=new Date(); return iso(d); }
+function iso(d){ return d.getFullYear()+"-"+String(d.getMonth()+1).padStart(2,"0")+"-"+String(d.getDate()).padStart(2,"0"); }
+function parse(s){ const [y,m,d]=s.split("-").map(Number); return new Date(y,m-1,d); }
+function fecha(s){ if(!s) return "—"; const [y,m,d]=s.split("-"); return d+"/"+m+"/"+y; }
+function dias(a,b){ return Math.round((parse(b)-parse(a))/86400000); }
+function finPorDefecto(inicio, meses=12){ const d=parse(inicio); d.setMonth(d.getMonth()+meses); d.setDate(d.getDate()-1); return iso(d); }
+function diaSiguiente(s){ const d=parse(s); d.setDate(d.getDate()+1); return iso(d); }
+function dinero(n, mon){ const v=Number(n)||0; return (mon==="USD"?"US$ ":"Bs ")+v.toLocaleString("es-BO",{minimumFractionDigits:0,maximumFractionDigits:2}); }
+const byId = (col,id) => S[col].find(x=>x.id===id);
+const porNombre = (a,b) => String(a.nombre||a.codigo||"").localeCompare(String(b.nombre||b.codigo||""),"es",{numeric:true});
+
+/* ---------- reglas de negocio ---------- */
+function estadoContrato(c, ref=hoy()){
+  if(c.finalizado) return "Finalizado";
+  if(c.inicio && c.inicio > ref) return "Futuro";
+  if(c.fin && c.fin < ref) return "Vencido";
+  if(c.fin && dias(ref,c.fin) <= DIAS_AVISO) return "Por vencer";
+  return "Vigente";
+}
+const OCUPA = new Set(["Vigente","Por vencer","Vencido"]);
+function pillContrato(e){
+  const cls = {"Vigente":"ok","Por vencer":"warn","Vencido":"bad","Finalizado":"idle","Futuro":"info"}[e];
+  return `<span class="pill ${cls}">${e}</span>`;
+}
+function contratoActual(unidadId){
+  return S.contratos.find(c => c.unidadId===unidadId && OCUPA.has(estadoContrato(c)));
+}
+function nombreUnidad(u){ if(!u) return "(unidad eliminada)"; const e=byId("edificios",u.edificioId); return (e?e.nombre+" · ":"")+u.codigo; }
+function resumenEdificio(eid){
+  const us = S.unidades.filter(u=>u.edificioId===eid);
+  let ocup=0, bs=0, usd=0;
+  for(const u of us){ const c=contratoActual(u.id); if(c){ ocup++; if(c.moneda==="USD") usd+=Number(c.renta)||0; else bs+=Number(c.renta)||0; } }
+  return {total:us.length, ocup, libres:us.length-ocup, pct: us.length? Math.round(ocup*100/us.length):0, bs, usd};
+}
+function haySolape(c, ignorarId){
+  return S.contratos.some(o => o.id!==ignorarId && !o.finalizado && o.unidadId===c.unidadId &&
+    (o.inicio||"0000") <= (c.fin||"9999") && (c.inicio||"0000") <= (o.fin||"9999"));
+}
+
+/* ---------- datos ---------- */
+function guardarLocal(){ try{ localStorage.setItem("cartera-edificios", JSON.stringify(S)); }catch(e){} }
+function cargarLocal(){ try{ const t=localStorage.getItem("cartera-edificios"); if(t){ const o=JSON.parse(t); for(const k of COLS) S[k]=Array.isArray(o[k])?o[k]:[]; } }catch(e){} }
+function nuevoId(){ return Date.now().toString(36)+Math.random().toString(36).slice(2,8); }
+
+function manejarError(e){
+  const code = e && e.code;
+  if(code==="invalid_argument" || code==="revoked"){ puedeEscribir=false; toast("No tienes permiso para guardar cambios en esta cartera."); render(); }
+  else if(code==="quota_exceeded"){ toast("Se llenó el espacio de la base de datos. Elimina registros antiguos para seguir."); }
+  else toast("No se pudo guardar. Revisa tu conexión e inténtalo de nuevo.");
+}
+async function guardar(col, id, data){
+  const prev = id ? byId(col,id) : null;
+  const body = Object.assign({}, prev||{}, data, {actualizado:new Date().toISOString()});
+  delete body.id;
+  if(!prev) body.creado = body.actualizado;
+  if(modo==="db"){
+    try{
+      if(id) await DB.collection(col).doc(id).set(body);
+      else await DB.collection(col).add(body);
+    }catch(e){ manejarError(e); throw e; }
+  }else{
+    if(id){ const i=S[col].findIndex(x=>x.id===id); S[col][i]=Object.assign({id},body); }
+    else S[col].push(Object.assign({id:nuevoId()},body));
+    guardarLocal(); render();
+  }
+}
+async function borrar(col, id){
+  if(modo==="db"){ try{ await DB.collection(col).doc(id).delete(); }catch(e){ manejarError(e); throw e; } }
+  else { S[col]=S[col].filter(x=>x.id!==id); guardarLocal(); render(); }
+}
+
+async function iniciar(){
+  render();
+  const timer = setTimeout(()=>{ if(modo==="cargando"||pendientes.size){ aviso="No se pudo conectar todavía con la base de datos. Los datos pueden estar incompletos."; render(); } }, 10000);
+  const pendientes = new Set(COLS);
+  let db = null;
+  try{ db = window.claude && window.claude.use ? await window.claude.use("db") : null; }catch(e){ db=null; }
+  if(!db){
+    clearTimeout(timer);
+    modo="local"; cargarLocal();
+    aviso="Modo sin conexión: los cambios se guardan sólo en este navegador.";
+    render(); return;
+  }
+  DB=db; modo="db";
+  for(const col of COLS){
+    db.collection(col).onSnapshot(snap=>{
+      S[col] = snap.docs.map(d=>Object.assign({id:d.id}, d.data()));
+      if(!snap.metadata.fromCache){ pendientes.delete(col); if(!pendientes.size){ clearTimeout(timer); aviso=""; } }
+      render();
+    }, err=>{
+      clearTimeout(timer); pendientes.delete(col);
+      if(err && err.code==="revoked"){ puedeEscribir=false; }
+      aviso="Se perdió la conexión con la base de datos. Recarga la página para ver los datos actualizados.";
+      render();
+    });
+  }
+  try{
+    const user = await window.claude.use("user");
+    if(user && user.can){ const w = await user.can("data.write"); if(w===false){ puedeEscribir=false; render(); } }
+  }catch(e){}
+}
+
+/* ---------- render ---------- */
+function vista(){ const h=location.hash.replace("#",""); return VISTAS.some(v=>v[0]===h)?h:"panel"; }
+function render(){
+  const v = vista();
+  const cuenta = {edificios:S.edificios.length, unidades:S.unidades.length, inquilinos:S.inquilinos.length, contratos:S.contratos.filter(c=>!c.finalizado).length};
+  document.getElementById("nav").innerHTML =
+    `<div class="brand"><svg width="26" height="26" viewBox="0 0 26 26" aria-hidden="true"><rect x="3" y="8" width="9" height="15" rx="1.5" fill="var(--accent)" opacity=".55"/><rect x="11" y="3" width="12" height="20" rx="1.5" fill="var(--accent)"/><g fill="var(--surface)"><rect x="14" y="7" width="2.4" height="2.4"/><rect x="18" y="7" width="2.4" height="2.4"/><rect x="14" y="12" width="2.4" height="2.4"/><rect x="18" y="12" width="2.4" height="2.4"/><rect x="15.5" y="17.5" width="3.5" height="5.5"/></g></svg>Cartera</div>` +
+    VISTAS.map(([k,l])=>`<a href="#${k}" class="${k===v?"on":""}">${l}${cuenta[k]!=null?`<span class="n">${cuenta[k]}</span>`:""}</a>`).join("") +
+    `<div class="foot">${modo==="db"?"Datos guardados en la nube":modo==="local"?"Datos en este navegador":"Conectando…"}${puedeEscribir?"":"<br>Sólo lectura"}</div>`;
+  const m = document.getElementById("main");
+  let html = "";
+  if(aviso) html += `<div class="banner warn">${esc(aviso)}</div>`;
+  if(modo==="cargando"){ html += `<div class="empty"><h2>Cargando la cartera…</h2></div>`; m.innerHTML=html; return; }
+  html += ({panel:vPanel, edificios:vEdificios, unidades:vUnidades, inquilinos:vInquilinos, contratos:vContratos})[v]();
+  m.innerHTML = html;
+  document.querySelectorAll("[data-ro]").forEach(b=>{ if(!puedeEscribir) b.disabled=true; });
+}
+function cabecera(t, sub, boton){
+  return `<div class="head"><div><h1>${t}</h1>${sub?`<p>${sub}</p>`:""}</div>${boton||""}</div>`;
+}
+function barra(pct){ return `<div class="occ"><div class="bar" role="img" aria-label="${pct}% ocupado"><i style="width:${pct}%"></i></div><span>${pct}%</span></div>`; }
+
+function vPanel(){
+  const hayEjemplo = COLS.some(c=>S[c].some(x=>x.ejemplo));
+  let h = cabecera("Panel", "Situación de la cartera al "+fecha(hoy()));
+  if(hayEjemplo) h += `<div class="banner info"><span>Estás viendo datos de ejemplo para probar la app.</span><button class="btn sm" data-a="borrar-ejemplo" data-ro>Borrar datos de ejemplo</button></div>`;
+  if(!S.edificios.length){
+    return h + `<div class="card empty"><h2>Tu cartera está vacía</h2><p>Empieza registrando tu primer edificio y luego sus unidades.</p><button class="btn primary" data-a="nuevo-edificio" data-ro>Registrar edificio</button></div>`;
+  }
+  const tot = S.unidades.length;
+  let ocup=0,bs=0,usd=0;
+  for(const u of S.unidades){ const c=contratoActual(u.id); if(c){ ocup++; if(c.moneda==="USD") usd+=Number(c.renta)||0; else bs+=Number(c.renta)||0; } }
+  const activos = S.contratos.map(c=>({c,e:estadoContrato(c)}));
+  const porVencer = activos.filter(x=>x.e==="Por vencer");
+  const vencidos = activos.filter(x=>x.e==="Vencido");
+  const pct = tot?Math.round(ocup*100/tot):0;
+  h += `<div class="kpis">
+    <div class="kpi"><div class="l">Ocupación</div><div class="v">${pct}%</div><div class="s">${ocup} de ${tot} unidades</div></div>
+    <div class="kpi"><div class="l">Renta mensual Bs</div><div class="v">${dinero(bs,"BOB")}</div><div class="s">contratos en curso</div></div>
+    <div class="kpi"><div class="l">Renta mensual US$</div><div class="v">${dinero(usd,"USD")}</div><div class="s">contratos en curso</div></div>
+    <div class="kpi ${porVencer.length?"alert":""}"><div class="l">Por vencer</div><div class="v">${porVencer.length}</div><div class="s">en los próximos ${DIAS_AVISO} días</div></div>
+    <div class="kpi ${vencidos.length?"alert":""}"><div class="l">Vencidos</div><div class="v">${vencidos.length}</div><div class="s">sin renovar ni finalizar</div></div>
+  </div>`;
+  h += `<div class="card"><h2>Por edificio</h2><div class="tbl-wrap"><table><thead><tr><th>Edificio</th><th class="num">Unidades</th><th class="num">Libres</th><th>Ocupación</th><th class="num">Renta Bs</th><th class="num">Renta US$</th></tr></thead><tbody>` +
+    S.edificios.slice().sort(porNombre).map(e=>{ const r=resumenEdificio(e.id);
+      return `<tr><td><button class="link" data-a="ver-unidades" data-id="${e.id}">${esc(e.nombre)}</button><div class="sub">${esc(e.direccion||"")}</div></td><td class="num">${r.total}</td><td class="num">${r.libres}</td><td>${barra(r.pct)}</td><td class="num">${r.bs?dinero(r.bs,"BOB"):"—"}</td><td class="num">${r.usd?dinero(r.usd,"USD"):"—"}</td></tr>`;}).join("") +
+    `</tbody></table></div></div>`;
+  const prox = [...vencidos, ...porVencer].sort((a,b)=>(a.c.fin||"").localeCompare(b.c.fin||""));
+  const libres = S.unidades.filter(u=>!contratoActual(u.id)).sort((a,b)=>nombreUnidad(a).localeCompare(nombreUnidad(b),"es",{numeric:true}));
+  h += `<div class="grid2">
+    <div class="card"><h2>Vencimientos a atender</h2>${prox.length?`<div class="list">`+prox.slice(0,8).map(({c,e})=>{
+      const u=byId("unidades",c.unidadId), i=byId("inquilinos",c.inquilinoId);
+      const d=dias(hoy(),c.fin);
+      return `<div class="it"><div><b>${esc(nombreUnidad(u))}</b><div class="sub">${esc(i?i.nombre:"—")} · vence ${fecha(c.fin)} (${d<0?"hace "+(-d)+" días":"en "+d+" días"})</div></div><div style="display:flex;gap:6px;align-items:center">${pillContrato(e)}<button class="btn sm" data-a="renovar" data-id="${c.id}" data-ro>Renovar</button></div></div>`;
+    }).join("")+`</div>`:`<p class="sub">No hay contratos por vencer en los próximos ${DIAS_AVISO} días.</p>`}</div>
+    <div class="card"><h2>Unidades libres</h2>${libres.length?`<div class="list">`+libres.slice(0,8).map(u=>
+      `<div class="it"><div><b>${esc(nombreUnidad(u))}</b><div class="sub">${esc(u.tipo||"")}${u.superficie?" · "+u.superficie+" m²":""}${u.rentaReferencia?" · ref. "+dinero(u.rentaReferencia,u.monedaReferencia):""}</div></div><button class="btn sm" data-a="alquilar" data-id="${u.id}" data-ro>Alquilar</button></div>`).join("")+
+      (libres.length>8?`<div class="it"><button class="link" data-a="ir-libres">Ver las ${libres.length} unidades libres</button></div>`:"")+`</div>`:`<p class="sub">Todas las unidades están ocupadas.</p>`}</div>
+  </div>`;
+  return h;
+}
+
+function vEdificios(){
+  let h = cabecera("Edificios", S.edificios.length+" edificio"+(S.edificios.length===1?"":"s")+" en la cartera", `<button class="btn primary" data-a="nuevo-edificio" data-ro>Nuevo edificio</button>`);
+  if(!S.edificios.length) return h + `<div class="card empty"><h2>Sin edificios todavía</h2><p>Registra un edificio para empezar a cargar sus unidades.</p></div>`;
+  h += `<div class="bcards">` + S.edificios.slice().sort(porNombre).map(e=>{ const r=resumenEdificio(e.id);
+    return `<div class="card bcard"><div><h2>${esc(e.nombre)}</h2><div class="addr">${esc([e.direccion,e.ciudad].filter(Boolean).join(", "))||"Sin dirección"}</div></div>
+      ${barra(r.pct)}
+      <div class="bstats"><div><b>${r.total}</b>unidades</div><div><b>${r.libres}</b>libres</div><div><b>${r.bs||r.usd?(r.bs?dinero(r.bs,"BOB"):"")+(r.bs&&r.usd?"<br>":"")+(r.usd?dinero(r.usd,"USD"):""):"—"}</b>renta/mes</div></div>
+      ${e.notas?`<div class="sub">${esc(e.notas)}</div>`:""}
+      <div class="row"><button class="btn sm" data-a="ver-unidades" data-id="${e.id}">Ver unidades</button><button class="btn sm" data-a="nueva-unidad" data-id="${e.id}" data-ro>Agregar unidad</button><button class="btn sm" data-a="editar-edificio" data-id="${e.id}" data-ro>Editar</button><button class="btn sm danger" data-a="eliminar-edificio" data-id="${e.id}" data-ro>Eliminar</button></div></div>`;
+  }).join("") + `</div>`;
+  return h;
+}
+
+function vUnidades(){
+  let h = cabecera("Unidades", "Departamentos, locales, oficinas y parqueos de todos los edificios", `<button class="btn primary" data-a="nueva-unidad" data-ro ${S.edificios.length?"":"disabled"}>Nueva unidad</button>`);
+  if(!S.edificios.length) return h + `<div class="card empty"><h2>Primero registra un edificio</h2><button class="btn primary" data-a="nuevo-edificio" data-ro>Registrar edificio</button></div>`;
+  h += `<div class="filters">
+    <input type="search" id="q-uni" placeholder="Buscar unidad o inquilino" value="${esc(UI.qUni)}" data-f="qUni">
+    <select id="f-edif" data-f="fEdif"><option value="">Todos los edificios</option>${S.edificios.slice().sort(porNombre).map(e=>`<option value="${e.id}" ${UI.fEdif===e.id?"selected":""}>${esc(e.nombre)}</option>`).join("")}</select>
+    <select id="f-estado" data-f="fEstado"><option value="">Ocupadas y libres</option><option value="ocupada" ${UI.fEstado==="ocupada"?"selected":""}>Sólo ocupadas</option><option value="libre" ${UI.fEstado==="libre"?"selected":""}>Sólo libres</option></select>
+  </div>`;
+  const q = UI.qUni.trim().toLowerCase();
+  const filas = S.unidades.map(u=>({u, e:byId("edificios",u.edificioId), c:contratoActual(u.id)})).map(x=>Object.assign(x,{i:x.c?byId("inquilinos",x.c.inquilinoId):null}))
+    .filter(x=>!UI.fEdif || x.u.edificioId===UI.fEdif)
+    .filter(x=>!UI.fEstado || (UI.fEstado==="ocupada")===!!x.c)
+    .filter(x=>!q || [x.u.codigo,x.e&&x.e.nombre,x.i&&x.i.nombre,x.u.tipo].join(" ").toLowerCase().includes(q))
+    .sort((a,b)=>nombreUnidad(a.u).localeCompare(nombreUnidad(b.u),"es",{numeric:true}));
+  if(!filas.length) return h + `<div class="card empty"><p>${S.unidades.length?"Ninguna unidad coincide con los filtros.":"Este edificio todavía no tiene unidades."}</p></div>`;
+  h += `<div class="tbl-wrap"><table><thead><tr><th>Edificio</th><th>Unidad</th><th>Tipo</th><th class="num">m²</th><th>Estado</th><th>Inquilino actual</th><th class="num">Renta</th><th></th></tr></thead><tbody>` +
+    filas.map(({u,e,c,i})=>`<tr><td>${esc(e?e.nombre:"—")}</td><td><b>${esc(u.codigo)}</b>${u.piso?`<div class="sub">Piso ${esc(u.piso)}</div>`:""}</td><td>${esc(u.tipo||"")}${u.dormitorios?`<div class="sub">${u.dormitorios} dorm.</div>`:""}</td><td class="num">${u.superficie||"—"}</td>
+      <td>${c?(estadoContrato(c)==="Vencido"?'<span class="pill bad">Ocupada · vencido</span>':'<span class="pill ok">Ocupada</span>'):'<span class="pill idle">Libre</span>'}</td>
+      <td>${i?esc(i.nombre):"—"}${c?`<div class="sub">hasta ${fecha(c.fin)}</div>`:""}</td>
+      <td class="num">${c?dinero(c.renta,c.moneda):(u.rentaReferencia?`<span class="sub">ref. ${dinero(u.rentaReferencia,u.monedaReferencia)}</span>`:"—")}</td>
+      <td class="act">${c?"":`<button class="btn sm" data-a="alquilar" data-id="${u.id}" data-ro>Alquilar</button>`}<button class="btn sm" data-a="editar-unidad" data-id="${u.id}" data-ro>Editar</button><button class="btn sm danger" data-a="eliminar-unidad" data-id="${u.id}" data-ro>Eliminar</button></td></tr>`).join("") +
+    `</tbody></table></div>`;
+  return h;
+}
+
+function vInquilinos(){
+  let h = cabecera("Inquilinos", "Personas y empresas que alquilan en tus edificios", `<button class="btn primary" data-a="nuevo-inquilino" data-ro>Nuevo inquilino</button>`);
+  if(!S.inquilinos.length) return h + `<div class="card empty"><h2>Sin inquilinos todavía</h2><p>Registra a tus inquilinos para poder asignarles contratos.</p></div>`;
+  h += `<div class="filters"><input type="search" id="q-inq" placeholder="Buscar por nombre, documento o teléfono" value="${esc(UI.qInq)}" data-f="qInq"></div>`;
+  const q=UI.qInq.trim().toLowerCase();
+  const filas = S.inquilinos.slice().sort(porNombre).filter(i=>!q||[i.nombre,i.documento,i.telefono,i.email].join(" ").toLowerCase().includes(q));
+  if(!filas.length) return h + `<div class="card empty"><p>Ningún inquilino coincide con la búsqueda.</p></div>`;
+  h += `<div class="tbl-wrap"><table><thead><tr><th>Nombre</th><th>Documento</th><th>Contacto</th><th>Alquila actualmente</th><th></th></tr></thead><tbody>` +
+    filas.map(i=>{ const cs=S.contratos.filter(c=>c.inquilinoId===i.id && OCUPA.has(estadoContrato(c)));
+      return `<tr><td><b>${esc(i.nombre)}</b>${i.notas?`<div class="sub">${esc(i.notas)}</div>`:""}</td><td>${i.documento?esc((i.tipoDoc||"")+" "+i.documento):"—"}</td>
+      <td>${esc(i.telefono||"")}${i.email?`<div class="sub">${esc(i.email)}</div>`:""}${!i.telefono&&!i.email?"—":""}</td>
+      <td>${cs.length?cs.map(c=>esc(nombreUnidad(byId("unidades",c.unidadId)))).join("<br>"):'<span class="sub">Nada</span>'}</td>
+      <td class="act"><button class="btn sm" data-a="ver-contratos-inq" data-id="${i.id}">Contratos</button><button class="btn sm" data-a="editar-inquilino" data-id="${i.id}" data-ro>Editar</button><button class="btn sm danger" data-a="eliminar-inquilino" data-id="${i.id}" data-ro>Eliminar</button></td></tr>`;}).join("") +
+    `</tbody></table></div>`;
+  return h;
+}
+
+function vContratos(){
+  let h = cabecera("Contratos", "Contratos de alquiler por unidad e inquilino", `<button class="btn primary" data-a="nuevo-contrato" data-ro ${S.unidades.length&&S.inquilinos.length?"":"disabled"}>Nuevo contrato</button>`);
+  if(!S.unidades.length||!S.inquilinos.length) h += `<div class="banner info">Para crear un contrato necesitas al menos una unidad y un inquilino registrados.</div>`;
+  if(!S.contratos.length) return h + `<div class="card empty"><h2>Sin contratos todavía</h2><p>Crea un contrato para marcar una unidad como ocupada.</p></div>`;
+  const opciones = [["activos","En curso y futuros"],["Por vencer","Por vencer"],["Vencido","Vencidos"],["Finalizado","Finalizados"],["todos","Todos"]];
+  h += `<div class="filters"><input type="search" id="q-con" placeholder="Buscar unidad, edificio o inquilino" value="${esc(UI.qCon)}" data-f="qCon">
+    <select id="f-con" data-f="fCon">${opciones.map(([v,l])=>`<option value="${v}" ${UI.fCon===v?"selected":""}>${l}</option>`).join("")}</select></div>`;
+  const q=UI.qCon.trim().toLowerCase();
+  const filas = S.contratos.map(c=>({c,e:estadoContrato(c),u:byId("unidades",c.unidadId),i:byId("inquilinos",c.inquilinoId)}))
+    .filter(x=> UI.fCon==="todos" ? true : UI.fCon==="activos" ? x.e!=="Finalizado" : x.e===UI.fCon)
+    .filter(x=>!q || [nombreUnidad(x.u), x.i&&x.i.nombre].join(" ").toLowerCase().includes(q))
+    .sort((a,b)=>(a.c.fin||"9999").localeCompare(b.c.fin||"9999"));
+  if(!filas.length) return h + `<div class="card empty"><p>Ningún contrato coincide con los filtros.</p></div>`;
+  h += `<div class="tbl-wrap"><table><thead><tr><th>Unidad</th><th>Inquilino</th><th>Vigencia</th><th>Estado</th><th class="num">Renta</th><th class="num">Garantía</th><th class="num">Día de pago</th><th></th></tr></thead><tbody>` +
+    filas.map(({c,e,u,i})=>`<tr><td><b>${esc(nombreUnidad(u))}</b></td><td>${esc(i?i.nombre:"(inquilino eliminado)")}</td>
+      <td>${fecha(c.inicio)} → ${fecha(c.fin)}${c.finalizado&&c.fechaSalida?`<div class="sub">Salida ${fecha(c.fechaSalida)}</div>`:""}</td>
+      <td>${pillContrato(e)}</td><td class="num">${dinero(c.renta,c.moneda)}</td><td class="num">${c.garantia?dinero(c.garantia,c.moneda):"—"}</td><td class="num">${c.diaPago||"—"}</td>
+      <td class="act">${c.finalizado?"":`<button class="btn sm" data-a="renovar" data-id="${c.id}" data-ro>Renovar</button><button class="btn sm" data-a="finalizar" data-id="${c.id}" data-ro>Finalizar</button>`}<button class="btn sm" data-a="editar-contrato" data-id="${c.id}" data-ro>Editar</button><button class="btn sm danger" data-a="eliminar-contrato" data-id="${c.id}" data-ro>Eliminar</button></td></tr>`).join("") +
+    `</tbody></table></div>`;
+  return h;
+}
+
+/* ---------- formularios ---------- */
+let modalState = null;
+function campo(f, v){
+  const id = "f-"+f.n, req = f.req?"required":"", val = v ?? f.def ?? "";
+  let input;
+  if(f.t==="select") input = `<select id="${id}" name="${f.n}" ${req}>${f.ph?`<option value="">${f.ph}</option>`:""}${f.opts.map(o=>{ const [ov,ol]=Array.isArray(o)?o:[o,o]; return `<option value="${esc(ov)}" ${String(val)===String(ov)?"selected":""}>${esc(ol)}</option>`; }).join("")}</select>`;
+  else if(f.t==="textarea") input = `<textarea id="${id}" name="${f.n}">${esc(val)}</textarea>`;
+  else input = `<input id="${id}" name="${f.n}" type="${f.t||"text"}" value="${esc(val)}" ${req} ${f.min!=null?`min="${f.min}"`:""} ${f.max!=null?`max="${f.max}"`:""} ${f.t==="number"?`step="${f.step||"any"}"`:""} ${f.ph?`placeholder="${esc(f.ph)}"`:""}>`;
+  return `<div class="fld ${f.full?"full":""}"><label for="${id}">${f.l}${f.req?" *":""}</label>${input}</div>`;
+}
+function abrirForm({titulo, campos, valores={}, boton="Guardar", alGuardar, alCambiar, texto}){
+  modalState = {campos, alGuardar, alCambiar};
+  document.getElementById("modal-root").innerHTML =
+    `<div class="scrim" data-a="cerrar-fuera"><form class="modal" id="frm" novalidate role="dialog" aria-modal="true" aria-labelledby="m-t">
+      <header><h2 id="m-t">${titulo}</h2><button type="button" class="x" data-a="cerrar" aria-label="Cerrar">×</button></header>
+      <div class="body">${texto?`<p>${texto}</p>`:""}${campos.map(f=>campo(f, valores[f.n])).join("")}<div class="err" id="m-err" hidden></div></div>
+      <footer><button type="button" class="btn" data-a="cerrar">Cancelar</button><button type="submit" class="btn primary">${boton}</button></footer>
+    </form></div>`;
+  const first = document.querySelector("#frm input, #frm select, #frm textarea");
+  if(first) first.focus();
+}
+function confirmar(titulo, texto, boton, accion){
+  abrirForm({titulo, campos:[], texto, boton, alGuardar: async()=>{ await accion(); }});
+  const b=document.querySelector("#frm button[type=submit]"); b.classList.remove("primary"); b.classList.add("danger");
+}
+function cerrar(){ document.getElementById("modal-root").innerHTML=""; modalState=null; }
+function leerForm(){
+  const o={};
+  for(const f of modalState.campos){
+    const el=document.getElementById("f-"+f.n); let v=el.value.trim();
+    if(f.t==="number") v = v===""?null:Number(v);
+    o[f.n]=v;
+  }
+  return o;
+}
+function errorForm(msg){ const e=document.getElementById("m-err"); e.textContent=msg; e.hidden=false; }
+
+const C_EDIF = [
+  {n:"nombre",l:"Nombre del edificio",req:true,full:true,ph:"Ej. Torre Sopocachi"},
+  {n:"direccion",l:"Dirección",full:true},
+  {n:"ciudad",l:"Ciudad"},
+  {n:"notas",l:"Notas",t:"textarea",full:true},
+];
+function cUnidad(){ return [
+  {n:"edificioId",l:"Edificio",t:"select",req:true,ph:"Elige un edificio",opts:S.edificios.slice().sort(porNombre).map(e=>[e.id,e.nombre]),full:true},
+  {n:"codigo",l:"Código o número",req:true,ph:"Ej. 4B, Local 2"},
+  {n:"tipo",l:"Tipo",t:"select",opts:TIPOS_UNIDAD,def:"Departamento"},
+  {n:"piso",l:"Piso"},
+  {n:"superficie",l:"Superficie (m²)",t:"number",min:0},
+  {n:"dormitorios",l:"Dormitorios",t:"number",min:0,step:1},
+  {n:"rentaReferencia",l:"Renta de referencia",t:"number",min:0},
+  {n:"monedaReferencia",l:"Moneda",t:"select",opts:[["BOB","Bolivianos (Bs)"],["USD","Dólares (US$)"]],def:"BOB"},
+  {n:"notas",l:"Notas",t:"textarea",full:true},
+];}
+const C_INQ = [
+  {n:"nombre",l:"Nombre o razón social",req:true,full:true},
+  {n:"tipoDoc",l:"Tipo de documento",t:"select",opts:TIPOS_DOC,def:"CI"},
+  {n:"documento",l:"Número de documento"},
+  {n:"telefono",l:"Teléfono",t:"tel"},
+  {n:"email",l:"Correo",t:"email"},
+  {n:"notas",l:"Notas",t:"textarea",full:true},
+];
+function cContrato(){
+  const unis = S.unidades.slice().sort((a,b)=>nombreUnidad(a).localeCompare(nombreUnidad(b),"es",{numeric:true}))
+    .map(u=>[u.id, nombreUnidad(u)+(contratoActual(u.id)?" (ocupada)":"")]);
+  return [
+  {n:"unidadId",l:"Unidad",t:"select",req:true,ph:"Elige una unidad",opts:unis,full:true},
+  {n:"inquilinoId",l:"Inquilino",t:"select",req:true,ph:"Elige un inquilino",opts:S.inquilinos.slice().sort(porNombre).map(i=>[i.id,i.nombre]),full:true},
+  {n:"inicio",l:"Fecha de inicio",t:"date",req:true,def:hoy()},
+  {n:"fin",l:"Fecha de fin",t:"date",req:true,def:finPorDefecto(hoy())},
+  {n:"renta",l:"Renta mensual",t:"number",req:true,min:0},
+  {n:"moneda",l:"Moneda",t:"select",opts:[["BOB","Bolivianos (Bs)"],["USD","Dólares (US$)"]],def:"BOB"},
+  {n:"garantia",l:"Garantía",t:"number",min:0},
+  {n:"diaPago",l:"Día de pago del mes",t:"number",min:1,max:31,step:1,def:5},
+  {n:"notas",l:"Notas",t:"textarea",full:true},
+];}
+function cambioContrato(e){
+  if(e.target.id==="f-unidadId"){
+    const u=byId("unidades",e.target.value);
+    if(u && u.rentaReferencia && !document.getElementById("f-renta").value){
+      document.getElementById("f-renta").value=u.rentaReferencia;
+      document.getElementById("f-moneda").value=u.monedaReferencia||"BOB";
+    }
+  }
+  if(e.target.id==="f-inicio" && e.target.value && !modalState.finTocado){
+    document.getElementById("f-fin").value=finPorDefecto(e.target.value);
+  }
+  if(e.target.id==="f-fin") modalState.finTocado=true;
+}
+async function guardarContrato(id, v, alTerminar){
+  if(!v.unidadId||!v.inquilinoId||!v.inicio||!v.fin||v.renta==null) return errorForm("Completa los campos marcados con *.");
+  if(v.fin < v.inicio) return errorForm("La fecha de fin debe ser posterior a la de inicio.");
+  if(v.renta<0) return errorForm("La renta no puede ser negativa.");
+  if(v.diaPago!=null && (v.diaPago<1||v.diaPago>31)) return errorForm("El día de pago debe estar entre 1 y 31.");
+  if(haySolape(v,id)) return errorForm("Esa unidad ya tiene otro contrato activo en esas fechas. Finaliza el anterior o ajusta las fechas.");
+  await guardar("contratos", id, v);
+  if(alTerminar) await alTerminar();
+  cerrar(); toast(id?"Contrato actualizado.":"Contrato registrado.");
+}
+function formContrato(id, valores={}, alTerminar, titulo){
+  abrirForm({titulo: titulo || (id?"Editar contrato":"Nuevo contrato"), campos:cContrato(), valores, alCambiar:cambioContrato,
+    alGuardar: v=>guardarContrato(id,v,alTerminar)});
+  if(id || valores.fin) modalState.finTocado = !!id;
+}
+
+/* ---------- acciones ---------- */
+const ACC = {
+  "nuevo-edificio": ()=>abrirForm({titulo:"Nuevo edificio",campos:C_EDIF,alGuardar:async v=>{ if(!v.nombre) return errorForm("Escribe el nombre del edificio."); await guardar("edificios",null,v); cerrar(); toast("Edificio registrado."); }}),
+  "editar-edificio": id=>abrirForm({titulo:"Editar edificio",campos:C_EDIF,valores:byId("edificios",id),alGuardar:async v=>{ if(!v.nombre) return errorForm("Escribe el nombre del edificio."); await guardar("edificios",id,v); cerrar(); toast("Cambios guardados."); }}),
+  "eliminar-edificio": id=>{ const e=byId("edificios",id); const n=S.unidades.filter(u=>u.edificioId===id).length;
+    if(n) return toast(`No se puede eliminar: ${e.nombre} tiene ${n} unidad${n===1?"":"es"}. Elimínalas primero.`);
+    confirmar("Eliminar edificio",`¿Eliminar <b>${esc(e.nombre)}</b>? Esta acción no se puede deshacer.`,"Eliminar",async()=>{ await borrar("edificios",id); cerrar(); toast("Edificio eliminado."); }); },
+  "ver-unidades": id=>{ UI.fEdif=id; UI.fEstado=""; UI.qUni=""; location.hash="unidades"; render(); },
+  "ir-libres": ()=>{ UI.fEdif=""; UI.fEstado="libre"; UI.qUni=""; location.hash="unidades"; render(); },
+  "nueva-unidad": id=>abrirForm({titulo:"Nueva unidad",campos:cUnidad(),valores:{edificioId:id||UI.fEdif||""},alGuardar:async v=>{
+    if(!v.edificioId||!v.codigo) return errorForm("Elige el edificio y escribe el código de la unidad.");
+    if(S.unidades.some(u=>u.edificioId===v.edificioId && u.codigo.toLowerCase()===v.codigo.toLowerCase())) return errorForm("Ya existe una unidad con ese código en este edificio.");
+    await guardar("unidades",null,v); cerrar(); toast("Unidad registrada."); }}),
+  "editar-unidad": id=>abrirForm({titulo:"Editar unidad",campos:cUnidad(),valores:byId("unidades",id),alGuardar:async v=>{
+    if(!v.edificioId||!v.codigo) return errorForm("Elige el edificio y escribe el código de la unidad.");
+    if(S.unidades.some(u=>u.id!==id && u.edificioId===v.edificioId && u.codigo.toLowerCase()===v.codigo.toLowerCase())) return errorForm("Ya existe una unidad con ese código en este edificio.");
+    await guardar("unidades",id,v); cerrar(); toast("Cambios guardados."); }}),
+  "eliminar-unidad": id=>{ const u=byId("unidades",id); const n=S.contratos.filter(c=>c.unidadId===id).length;
+    if(n) return toast(`No se puede eliminar: la unidad ${u.codigo} tiene ${n} contrato${n===1?"":"s"} registrado${n===1?"":"s"}.`);
+    confirmar("Eliminar unidad",`¿Eliminar la unidad <b>${esc(nombreUnidad(u))}</b>?`,"Eliminar",async()=>{ await borrar("unidades",id); cerrar(); toast("Unidad eliminada."); }); },
+  "alquilar": id=>{ if(!S.inquilinos.length) return toast("Registra primero un inquilino en la sección Inquilinos.");
+    const u=byId("unidades",id); formContrato(null,{unidadId:id, renta:u.rentaReferencia, moneda:u.monedaReferencia||"BOB"}); },
+  "nuevo-inquilino": ()=>abrirForm({titulo:"Nuevo inquilino",campos:C_INQ,alGuardar:async v=>{ if(!v.nombre) return errorForm("Escribe el nombre del inquilino."); await guardar("inquilinos",null,v); cerrar(); toast("Inquilino registrado."); }}),
+  "editar-inquilino": id=>abrirForm({titulo:"Editar inquilino",campos:C_INQ,valores:byId("inquilinos",id),alGuardar:async v=>{ if(!v.nombre) return errorForm("Escribe el nombre del inquilino."); await guardar("inquilinos",id,v); cerrar(); toast("Cambios guardados."); }}),
+  "eliminar-inquilino": id=>{ const i=byId("inquilinos",id); const n=S.contratos.filter(c=>c.inquilinoId===id).length;
+    if(n) return toast(`No se puede eliminar: ${i.nombre} tiene ${n} contrato${n===1?"":"s"} registrado${n===1?"":"s"}.`);
+    confirmar("Eliminar inquilino",`¿Eliminar a <b>${esc(i.nombre)}</b>?`,"Eliminar",async()=>{ await borrar("inquilinos",id); cerrar(); toast("Inquilino eliminado."); }); },
+  "ver-contratos-inq": id=>{ UI.qCon=byId("inquilinos",id).nombre; UI.fCon="todos"; location.hash="contratos"; render(); },
+  "nuevo-contrato": ()=>formContrato(null),
+  "editar-contrato": id=>formContrato(id, byId("contratos",id)),
+  "renovar": id=>{ const c=byId("contratos",id); const ini=diaSiguiente(c.fin);
+    formContrato(null, {unidadId:c.unidadId, inquilinoId:c.inquilinoId, inicio:ini, fin:finPorDefecto(ini), renta:c.renta, moneda:c.moneda, garantia:c.garantia, diaPago:c.diaPago},
+      async()=>{ await guardar("contratos", id, {finalizado:true, fechaSalida:c.fin, renovadoEl:hoy()}); }, "Renovar contrato");
+    document.querySelector("#frm .body").insertAdjacentHTML("afterbegin", `<p class="sub">Se creará un contrato nuevo y el actual quedará finalizado al ${fecha(c.fin)}. Ajusta la renta si cambia.</p>`); },
+  "finalizar": id=>{ const c=byId("contratos",id);
+    abrirForm({titulo:"Finalizar contrato", texto:`La unidad <b>${esc(nombreUnidad(byId("unidades",c.unidadId)))}</b> quedará libre.`, campos:[{n:"fechaSalida",l:"Fecha de salida",t:"date",req:true,def:hoy(),full:true}], boton:"Finalizar",
+      alGuardar: async v=>{ if(!v.fechaSalida) return errorForm("Indica la fecha de salida."); await guardar("contratos",id,{finalizado:true,fechaSalida:v.fechaSalida}); cerrar(); toast("Contrato finalizado. La unidad quedó libre."); }}); },
+  "eliminar-contrato": id=>{ const c=byId("contratos",id);
+    confirmar("Eliminar contrato",`¿Eliminar este contrato de <b>${esc(nombreUnidad(byId("unidades",c.unidadId)))}</b>? Si sólo terminó, usa <b>Finalizar</b> para conservar el historial.`,"Eliminar",async()=>{ await borrar("contratos",id); cerrar(); toast("Contrato eliminado."); }); },
+  "borrar-ejemplo": ()=>confirmar("Borrar datos de ejemplo","Se eliminarán todos los edificios, unidades, inquilinos y contratos de ejemplo. Lo que hayas cargado tú se conserva.","Borrar",async()=>{
+    for(const col of ["contratos","unidades","inquilinos","edificios"]) for(const x of S[col].filter(x=>x.ejemplo)) await borrar(col,x.id);
+    cerrar(); toast("Datos de ejemplo eliminados."); }),
+  "cerrar": ()=>cerrar(),
+};
+
+document.addEventListener("click", e=>{
+  const el = e.target.closest("[data-a]"); if(!el) return;
+  const a = el.dataset.a;
+  if(a==="cerrar-fuera"){ if(e.target===el) cerrar(); return; }
+  if(el.disabled) return;
+  if(ACC[a]){ e.preventDefault(); ACC[a](el.dataset.id); }
+});
+document.addEventListener("input", e=>{
+  const f = e.target.dataset && e.target.dataset.f;
+  if(f){ UI[f]=e.target.value; const id=e.target.id, pos=e.target.selectionStart; render();
+    const n=document.getElementById(id); if(n){ n.focus(); if(n.setSelectionRange&&pos!=null) try{n.setSelectionRange(pos,pos);}catch(_){} } }
+});
+document.addEventListener("change", e=>{ if(modalState && modalState.alCambiar && e.target.closest("#frm")) modalState.alCambiar(e); });
+document.addEventListener("submit", async e=>{
+  if(e.target.id!=="frm") return; e.preventDefault();
+  const btn=e.target.querySelector("button[type=submit]"); if(btn.disabled) return;
+  btn.disabled=true;
+  try{ await modalState.alGuardar(leerForm()); }catch(err){ if(document.getElementById("m-err")) errorForm("No se pudo guardar. Inténtalo de nuevo."); }
+  finally{ if(btn.isConnected) btn.disabled=false; }
+});
+document.addEventListener("keydown", e=>{ if(e.key==="Escape" && modalState) cerrar(); });
+window.addEventListener("hashchange", render);
+let toastT;
+function toast(msg){ let t=document.querySelector(".toast"); if(!t){ t=document.createElement("div"); t.className="toast"; t.setAttribute("role","status"); document.body.appendChild(t);} t.textContent=msg; clearTimeout(toastT); toastT=setTimeout(()=>t.remove(),3800); }
+
+iniciar();
+</script>
+</body>
+</html>
