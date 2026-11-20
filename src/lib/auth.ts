@@ -9,7 +9,7 @@ import { cache } from "react";
 import { createHash, randomBytes } from "node:crypto";
 import bcrypt from "bcryptjs";
 import { prisma } from "./db";
-import type { Permiso } from "./permisos";
+import { TODOS_LOS_PERMISOS, type Permiso } from "./permisos";
 
 const COOKIE = "cartera_sesion";
 const DURACION_MS = 7 * 24 * 60 * 60 * 1000;
@@ -124,7 +124,8 @@ export const usuarioActual = cache(async (): Promise<UsuarioActual | null> => {
     email: u.email,
     debeCambiarPassword: u.debeCambiarPassword,
     rol: { id: u.rol.id, nombre: u.rol.nombre },
-    permisos: u.rol.permisos,
+    // El rol del sistema (Administrador) recibe siempre todos los permisos, incluidos los que se agreguen en el futuro.
+    permisos: u.rol.sistema ? [...TODOS_LOS_PERMISOS] : u.rol.permisos,
   };
 });
 
