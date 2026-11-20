@@ -5,6 +5,8 @@ import { menuPara } from "@/lib/menu";
 import { cargarCartera } from "@/lib/cartera";
 import { DIAS_AVISO, diasEntre, formatoDinero, formatoFecha } from "@/lib/negocio";
 import { Barra, Cabecera, PillContrato, Vacio } from "@/components/ui";
+import { Montos } from "@/components/cobros";
+import { cargarCuotas, sincronizarCuotas, totalesPorMoneda } from "@/lib/cuentas";
 
 export default async function Panel() {
   const u = await requireUsuario();
@@ -38,6 +40,14 @@ export default async function Panel() {
   const pct = total ? Math.round((ocupadas.length * 100) / total) : 0;
   const atender = [...vencidos, ...porVencer].sort((a, b) => a.fin.localeCompare(b.fin)).slice(0, 8);
   const libres = d.unidades.filter((x) => !x.actual);
+  let vencidoCobros: { BOB: number; USD: number } | null = null;
+  let contratosEnMora = 0;
+  if (puede(u, "cobros.ver")) {
+    await sincronizarCuotas();
+    const vencidas = (await cargarCuotas({ vencimiento: { lt: new Date(`${d.hoy}T00:00:00Z`) } })).filter((c) => c.saldo > 0);
+    vencidoCobros = totalesPorMoneda(vencidas, (c) => c.saldo);
+    contratosEnMora = new Set(vencidas.map((c) => c.contratoId)).size;
+  }
 
   return (
     <>
@@ -60,8 +70,17 @@ export default async function Panel() {
           <div className="v">{formatoDinero(usd, "USD")}</div>
           <div className="s">contratos en curso</div>
         </div>
+        {vencidoCobros && (
+          <Link href="/vencidos" className={`kpi${contratosEnMora ? " alert" : ""}`} style={{ textDecoration: "none", color: "inherit" }}>
+            <div className="l">Cobros vencidos</div>
+            <div className="v">
+              <Montos t={vencidoCobros} />
+            </div>
+            <div className="s">{contratosEnMora} contrato(s) en mora</div>
+          </Link>
+        )}
         <div className={`kpi${porVencer.length ? " alert" : ""}`}>
-          <div className="l">Por vencer</div>
+          <div className="l">Contratos por vencer</div>
           <div className="v">{porVencer.length}</div>
           <div className="s">en los próximos {DIAS_AVISO} días</div>
         </div>

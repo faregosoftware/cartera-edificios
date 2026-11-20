@@ -50,6 +50,15 @@ export const MODULOS = [
     ],
   },
   {
+    clave: "cobros",
+    nombre: "Cobros",
+    acciones: [
+      { clave: "ver", nombre: "Ver estados de cuenta, vencidos y recibos" },
+      { clave: "registrar", nombre: "Registrar pagos e imprimir recibos" },
+      { clave: "anular", nombre: "Anular recibos y ajustar cuotas" },
+    ],
+  },
+  {
     clave: "usuarios",
     nombre: "Usuarios",
     acciones: [
@@ -99,10 +108,10 @@ export const ROLES_INICIALES: { nombre: string; descripcion: string; sistema: bo
   },
   {
     nombre: "Operador",
-    descripcion: "Registra y edita edificios, unidades, inquilinos y contratos. No elimina ni administra usuarios.",
+    descripcion: "Registra y edita la cartera y cobra. No elimina, no anula recibos ni administra usuarios.",
     sistema: false,
     permisos: TODOS_LOS_PERMISOS.filter(
-      (p) => !p.endsWith(".eliminar") && !p.startsWith("usuarios.") && !p.startsWith("roles."),
+      (p) => !p.endsWith(".eliminar") && p !== "cobros.anular" && !p.startsWith("usuarios.") && !p.startsWith("roles."),
     ),
   },
   {

@@ -66,7 +66,11 @@ export async function editarContrato(id: string, fd: FormData): Promise<Resultad
     const solape = await validarSolape(r.datos, id);
     if (solape) return { error: solape };
   }
-  await prisma.contrato.update({ where: { id }, data: aDb(r.datos) });
+  await prisma.$transaction([
+    prisma.contrato.update({ where: { id }, data: aDb(r.datos) }),
+    // Las cuotas sin pagos ni ajustes se vuelven a generar con los datos nuevos (renta, fechas, día de pago).
+    prisma.cuota.deleteMany({ where: { contratoId: id, nota: null, pagos: { none: {} } } }),
+  ]);
   revalidatePath("/", "layout");
   redirect("/contratos");
 }
@@ -87,6 +91,7 @@ export async function renovarContrato(idAnterior: string, fd: FormData): Promise
   const salida = r.datos.inicio <= finAnterior ? sumarDias(r.datos.inicio, -1) : finAnterior;
   await prisma.$transaction([
     prisma.contrato.update({ where: { id: idAnterior }, data: { finalizado: true, fechaSalida: deFechaISO(salida) } }),
+    prisma.cuota.deleteMany({ where: { contratoId: idAnterior, desde: { gt: deFechaISO(salida) }, pagos: { none: {} } } }),
     prisma.contrato.create({ data: aDb(r.datos) }),
   ]);
   revalidatePath("/", "layout");
@@ -100,14 +105,20 @@ export async function finalizarContrato(id: string, fd: FormData): Promise<Resul
   const c = await prisma.contrato.findUnique({ where: { id } });
   if (!c) return { error: "El contrato ya no existe." };
   if (r.datos.fechaSalida < fechaISO(c.inicio)!) return { error: "La fecha de salida no puede ser anterior al inicio del contrato." };
-  await prisma.contrato.update({ where: { id }, data: { finalizado: true, fechaSalida: deFechaISO(r.datos.fechaSalida) } });
+  await prisma.$transaction([
+    prisma.contrato.update({ where: { id }, data: { finalizado: true, fechaSalida: deFechaISO(r.datos.fechaSalida) } }),
+    // Las cuotas de períodos que empiezan después de la salida ya no corresponden (si no tienen pagos).
+    prisma.cuota.deleteMany({ where: { contratoId: id, desde: { gt: deFechaISO(r.datos.fechaSalida) }, pagos: { none: {} } } }),
+  ]);
   revalidatePath("/", "layout");
   redirect("/contratos");
 }
 
 export async function eliminarContrato(id: string): Promise<Resultado> {
   await requirePermiso("contratos.eliminar");
-  await prisma.contrato.deleteMany({ where: { id } });
+  const pagos = await prisma.pago.count({ where: { cuota: { contratoId: id } } });
+  if (pagos) return { error: `No se puede eliminar: el contrato tiene ${pagos} recibo(s) emitidos. Usa Finalizar para cerrarlo.` };
+  await prisma.$transaction([prisma.cuota.deleteMany({ where: { contratoId: id } }), prisma.contrato.deleteMany({ where: { id } })]);
   revalidatePath("/", "layout");
   redirect("/contratos");
 }
