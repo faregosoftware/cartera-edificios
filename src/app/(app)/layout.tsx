@@ -2,6 +2,7 @@ import type { ReactNode } from "react";
 import Link from "next/link";
 import { requireUsuario } from "@/lib/auth";
 import { menuPara } from "@/lib/menu";
+import { datosEmpresa } from "@/lib/empresa";
 import { Nav } from "@/components/Nav";
 import { salir } from "../login/actions";
 
@@ -24,7 +25,7 @@ export default async function AppLayout({ children }: { children: ReactNode }) {
               <rect x="15.5" y="17.5" width="3.5" height="5.5" />
             </g>
           </svg>
-          Cartera
+          <span>{datosEmpresa().nombre}</span>
         </div>
         <Nav items={items} />
         <div className="user">
