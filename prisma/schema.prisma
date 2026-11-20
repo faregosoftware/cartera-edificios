@@ -1,0 +1,123 @@
+generator client {
+  provider = "prisma-client-js"
+}
+
+datasource db {
+  provider = "postgresql"
+  url      = env("DATABASE_URL")
+}
+
+// ---------- Seguridad ----------
+
+model Rol {
+  id          String    @id @default(cuid())
+  nombre      String    @unique
+  descripcion String?
+  /// Claves de permiso, por ejemplo "contratos.crear". Ver src/lib/permisos.ts
+  permisos    String[]
+  /// Rol del sistema (Administrador): no se puede eliminar ni quitarle permisos.
+  sistema     Boolean   @default(false)
+  usuarios    Usuario[]
+  creado      DateTime  @default(now())
+  actualizado DateTime  @updatedAt
+}
+
+model Usuario {
+  id                  String    @id @default(cuid())
+  email               String    @unique
+  nombre              String
+  passwordHash        String
+  rolId               String
+  rol                 Rol       @relation(fields: [rolId], references: [id], onDelete: Restrict)
+  activo              Boolean   @default(true)
+  debeCambiarPassword Boolean   @default(true)
+  intentosFallidos    Int       @default(0)
+  bloqueadoHasta      DateTime?
+  ultimoAcceso        DateTime?
+  sesiones            Sesion[]
+  creado              DateTime  @default(now())
+  actualizado         DateTime  @updatedAt
+}
+
+model Sesion {
+  /// SHA-256 del token que viaja en la cookie: el token en claro nunca se guarda.
+  id        String   @id
+  usuarioId String
+  usuario   Usuario  @relation(fields: [usuarioId], references: [id], onDelete: Cascade)
+  expira    DateTime
+  creado    DateTime @default(now())
+
+  @@index([usuarioId])
+}
+
+// ---------- Cartera ----------
+
+model Edificio {
+  id          String   @id @default(cuid())
+  nombre      String
+  direccion   String?
+  ciudad      String?
+  notas       String?
+  unidades    Unidad[]
+  creado      DateTime @default(now())
+  actualizado DateTime @updatedAt
+}
+
+enum Moneda {
+  BOB
+  USD
+}
+
+model Unidad {
+  id               String     @id @default(cuid())
+  edificioId       String
+  edificio         Edificio   @relation(fields: [edificioId], references: [id], onDelete: Restrict)
+  codigo           String
+  tipo             String     @default("Departamento")
+  piso             String?
+  superficie       Decimal?   @db.Decimal(10, 2)
+  dormitorios      Int?
+  rentaReferencia  Decimal?   @db.Decimal(12, 2)
+  monedaReferencia Moneda     @default(BOB)
+  notas            String?
+  contratos        Contrato[]
+  creado           DateTime   @default(now())
+  actualizado      DateTime   @updatedAt
+
+  @@unique([edificioId, codigo])
+}
+
+model Inquilino {
+  id          String     @id @default(cuid())
+  nombre      String
+  tipoDoc     String     @default("CI")
+  documento   String?
+  telefono    String?
+  email       String?
+  notas       String?
+  contratos   Contrato[]
+  creado      DateTime   @default(now())
+  actualizado DateTime   @updatedAt
+}
+
+model Contrato {
+  id          String    @id @default(cuid())
+  unidadId    String
+  unidad      Unidad    @relation(fields: [unidadId], references: [id], onDelete: Restrict)
+  inquilinoId String
+  inquilino   Inquilino @relation(fields: [inquilinoId], references: [id], onDelete: Restrict)
+  inicio      DateTime  @db.Date
+  fin         DateTime  @db.Date
+  renta       Decimal   @db.Decimal(12, 2)
+  moneda      Moneda    @default(BOB)
+  garantia    Decimal?  @db.Decimal(12, 2)
+  diaPago     Int?
+  finalizado  Boolean   @default(false)
+  fechaSalida DateTime? @db.Date
+  notas       String?
+  creado      DateTime  @default(now())
+  actualizado DateTime  @updatedAt
+
+  @@index([unidadId])
+  @@index([inquilinoId])
+}
