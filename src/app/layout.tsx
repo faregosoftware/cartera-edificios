@@ -1,11 +1,11 @@
 import type { Metadata } from "next";
 import type { ReactNode } from "react";
 import "./globals.css";
+import { datosEmpresa } from "@/lib/empresa";
 
-export const metadata: Metadata = {
-  title: "Cartera de Edificios",
-  description: "Edificios, unidades, inquilinos y contratos",
-};
+export async function generateMetadata(): Promise<Metadata> {
+  return { title: datosEmpresa().nombre, description: "Edificios, unidades, inquilinos, contratos y cobros" };
+}
 
 export default function RootLayout({ children }: { children: ReactNode }) {
   return (

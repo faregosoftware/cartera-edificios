@@ -3,8 +3,11 @@ import { usuarioActual } from "@/lib/auth";
 import { FormAccion } from "@/components/FormAccion";
 import { Campo } from "@/components/ui";
 import { entrar } from "./actions";
+import { datosEmpresa } from "@/lib/empresa";
 
-export const metadata = { title: "Ingresar · Cartera de Edificios" };
+export async function generateMetadata() {
+  return { title: `Ingresar · ${datosEmpresa().nombre}` };
+}
 
 export default async function LoginPage() {
   if (await usuarioActual()) redirect("/");
@@ -12,7 +15,7 @@ export default async function LoginPage() {
     <div className="login">
       <div className="card">
         <div>
-          <h1>Cartera de Edificios</h1>
+          <h1>{datosEmpresa().nombre}</h1>
           <p className="sub">Ingresa con tu correo y contraseña.</p>
         </div>
         <FormAccion action={entrar}>

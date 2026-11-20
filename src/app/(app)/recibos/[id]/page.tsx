@@ -8,6 +8,7 @@ import { formatoDinero, formatoFecha } from "@/lib/negocio";
 import { FormAccion } from "@/components/FormAccion";
 import { Aviso, Campo } from "@/components/ui";
 import { BotonImprimir } from "@/components/BotonImprimir";
+import { datosEmpresa } from "@/lib/empresa";
 import { anularPago } from "../../cobros/actions";
 
 export default async function Recibo({ params, searchParams }: { params: Promise<{ id: string }>; searchParams: Promise<{ nuevo?: string }> }) {
@@ -33,12 +34,7 @@ export default async function Recibo({ params, searchParams }: { params: Promise
   // Saldo que quedó después de este pago (no cambia si se reimprime más tarde).
   const pagadoHastaAqui = p.cuota.pagos.filter((x) => x.numero <= p.numero).reduce((s, x) => s + Number(x.monto), 0) + (p.anulado ? monto : 0);
   const saldo = redondear(Math.max(0, Number(p.cuota.monto) - pagadoHastaAqui));
-  const empresa = {
-    nombre: process.env.RECIBO_EMPRESA || "Administración de Inmuebles",
-    nit: process.env.RECIBO_NIT,
-    direccion: process.env.RECIBO_DIRECCION,
-    telefono: process.env.RECIBO_TELEFONO,
-  };
+  const empresa = datosEmpresa();
   const numero = String(p.numero).padStart(6, "0");
 
   return (

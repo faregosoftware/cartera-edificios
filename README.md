@@ -67,7 +67,7 @@ Ingresa con `ADMIN_EMAIL` y `ADMIN_PASSWORD`. La app te pedirá cambiar la contr
 2. Despliega el repositorio en Vercel o Railway con estas variables: `DATABASE_URL` y `APP_TZ=America/La_Paz`. Agrega `ADMIN_*` solo para la carga inicial.
 3. Ejecuta una vez `npm run db:migrate && npm run db:seed` contra esa base.
 4. En Vercel, cada deploy de producción aplica las migraciones pendientes (`vercel-build`).
-5. Opcional: `RECIBO_EMPRESA`, `RECIBO_NIT`, `RECIBO_DIRECCION` y `RECIBO_TELEFONO` para el encabezado de los recibos.
+5. Opcional: `NOMBRE_EMPRESA` (menú, ingreso y recibos), y `RECIBO_NIT`, `RECIBO_DIRECCION` y `RECIBO_TELEFONO` para el encabezado de los recibos.
 6. Usa siempre HTTPS. En producción la cookie de sesión se marca como `secure`.
 
 ## Estructura
