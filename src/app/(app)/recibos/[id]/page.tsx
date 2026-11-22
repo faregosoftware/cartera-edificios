@@ -62,7 +62,7 @@ export default async function Recibo({ params, searchParams }: { params: Promise
       )}
       {p.anulado && (
         <Aviso tipo="warn">
-          Recibo anulado el {p.anuladoEl?.toLocaleDateString("es-BO", { timeZone: process.env.APP_TZ || "America/La_Paz" })}
+          Recibo anulado el {p.anuladoEl?.toLocaleDateString("es-DO", { timeZone: process.env.APP_TZ || "America/Santo_Domingo" })}
           {p.anuladoPor ? ` por ${p.anuladoPor.nombre}` : ""}. Motivo: {p.anuladoMotivo}
         </Aviso>
       )}
@@ -72,7 +72,7 @@ export default async function Recibo({ params, searchParams }: { params: Promise
           <div>
             <h2>{empresa.nombre}</h2>
             <div className="sub">
-              {[empresa.nit && `NIT ${empresa.nit}`, empresa.direccion, empresa.telefono && `Tel. ${empresa.telefono}`].filter(Boolean).join(" · ")}
+              {[empresa.rnc && `RNC ${empresa.rnc}`, empresa.direccion, empresa.telefono && `Tel. ${empresa.telefono}`].filter(Boolean).join(" · ")}
             </div>
           </div>
           <div className="nro">

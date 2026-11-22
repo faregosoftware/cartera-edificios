@@ -45,7 +45,7 @@ export type CuotaVista = {
   hasta: string;
   vencimiento: string;
   monto: number;
-  moneda: "BOB" | "USD";
+  moneda: "DOP" | "USD";
   nota: string | null;
   pagado: number;
   saldo: number;
@@ -102,9 +102,9 @@ export async function cargarCuotas(where: Prisma.CuotaWhereInput = {}): Promise<
   });
 }
 
-/** Suma por moneda: { BOB, USD } */
-export function totalesPorMoneda<T extends { moneda: "BOB" | "USD" }>(filas: T[], campo: (x: NoInfer<T>) => number) {
-  const t = { BOB: 0, USD: 0 };
+/** Suma por moneda: { DOP, USD } */
+export function totalesPorMoneda<T extends { moneda: "DOP" | "USD" }>(filas: T[], campo: (x: NoInfer<T>) => number) {
+  const t = { DOP: 0, USD: 0 };
   for (const f of filas) t[f.moneda] = redondear(t[f.moneda] + campo(f));
   return t;
 }

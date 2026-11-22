@@ -32,7 +32,7 @@ test("fechas", () => {
   assert.equal(esFechaValida("2026-02-29"), false);
   assert.equal(esFechaValida("2028-02-29"), true);
   assert.equal(esFechaValida("29/02/2028"), false);
-  assert.equal(hoyEn("America/La_Paz", new Date("2026-11-20T03:30:00Z")), "2026-11-19"); // 23:30 en La Paz
+  assert.equal(hoyEn("America/Santo_Domingo", new Date("2026-11-20T03:30:00Z")), "2026-11-19"); // 23:30 en Santo Domingo
 });
 
 test("solape de contratos en la misma unidad", () => {

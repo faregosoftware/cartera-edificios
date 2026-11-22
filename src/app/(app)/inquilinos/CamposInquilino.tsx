@@ -7,7 +7,7 @@ export function CamposInquilino({ v = {} }: { v?: Valores }) {
   return (
     <>
       <Campo nombre="nombre" etiqueta="Nombre o razón social" requerido completo valor={v.nombre} />
-      <Campo nombre="tipoDoc" etiqueta="Tipo de documento" tipo="select" opciones={TIPOS_DOC} valor={v.tipoDoc ?? "CI"} />
+      <Campo nombre="tipoDoc" etiqueta="Tipo de documento" tipo="select" opciones={TIPOS_DOC} valor={v.tipoDoc ?? "Cédula"} />
       <Campo nombre="documento" etiqueta="Número de documento" valor={v.documento} />
       <Campo nombre="telefono" etiqueta="Teléfono" tipo="tel" valor={v.telefono} />
       <Campo nombre="email" etiqueta="Correo" tipo="email" valor={v.email} />

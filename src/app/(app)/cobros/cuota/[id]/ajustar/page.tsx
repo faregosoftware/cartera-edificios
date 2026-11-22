@@ -20,7 +20,7 @@ export default async function AjustarCuota({ params }: { params: Promise<{ id: s
       <div className="form">
         <p className="full sub">Úsalo para descuentos, prorrateos o correcciones. Para no cobrar nada, pon 0 (si no hay pagos).</p>
         <FormAccion action={ajustarCuota.bind(null, id)}>
-          <Campo nombre="monto" etiqueta={`Monto de la cuota (${c.moneda === "USD" ? "US$" : "Bs"})`} tipo="number" requerido min={c.pagado} valor={c.monto} />
+          <Campo nombre="monto" etiqueta={`Monto de la cuota (${c.moneda === "USD" ? "US$" : "RD$"})`} tipo="number" requerido min={c.pagado} valor={c.monto} />
           <Campo nombre="nota" etiqueta="Motivo" requerido valor={c.nota} />
           <BotonesForm cancelar={`/cobros/${c.contratoId}`} texto="Guardar ajuste" />
         </FormAccion>

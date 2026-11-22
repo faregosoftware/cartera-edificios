@@ -80,7 +80,7 @@ export function formatoFecha(s: string | null | undefined): string {
   return `${d}/${m}/${y}`;
 }
 
-export function formatoDinero(n: number | null | undefined, moneda: "BOB" | "USD" | string): string {
+export function formatoDinero(n: number | null | undefined, moneda: "DOP" | "USD" | string): string {
   const v = Number(n) || 0;
-  return (moneda === "USD" ? "US$ " : "Bs ") + v.toLocaleString("es-BO", { minimumFractionDigits: 0, maximumFractionDigits: 2 });
+  return (moneda === "USD" ? "US$ " : "RD$ ") + v.toLocaleString("es-DO", { minimumFractionDigits: 0, maximumFractionDigits: 2 });
 }

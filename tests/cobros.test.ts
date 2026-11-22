@@ -86,8 +86,8 @@ test("monto en letras", () => {
   assert.equal(numeroALetras(100000), "cien mil");
   assert.equal(numeroALetras(1_250_000), "un millón doscientos cincuenta mil");
   assert.equal(numeroALetras(2_001_001), "dos millones mil uno");
-  assert.equal(montoEnLetras(3200, "BOB"), "Tres mil doscientos 00/100 Bolivianos");
+  assert.equal(montoEnLetras(35000, "DOP"), "Treinta y cinco mil 00/100 Pesos Dominicanos");
   assert.equal(montoEnLetras(650.5, "USD"), "Seiscientos cincuenta 50/100 Dólares Estadounidenses");
-  assert.equal(montoEnLetras(5500.99, "BOB"), "Cinco mil quinientos 99/100 Bolivianos");
+  assert.equal(montoEnLetras(5500.99, "DOP"), "Cinco mil quinientos 99/100 Pesos Dominicanos");
   assert.equal(nombrePeriodo("2026-11"), "Noviembre 2026");
 });

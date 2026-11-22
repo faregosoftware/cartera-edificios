@@ -23,7 +23,7 @@ export function CamposUnidad({ edificios, v = {} }: { edificios: { id: string; n
       <Campo nombre="superficie" etiqueta="Superficie (m²)" tipo="number" min={0} valor={v.superficie} />
       <Campo nombre="dormitorios" etiqueta="Dormitorios" tipo="number" min={0} paso={1} valor={v.dormitorios} />
       <Campo nombre="rentaReferencia" etiqueta="Renta de referencia" tipo="number" min={0} valor={v.rentaReferencia} />
-      <Campo nombre="monedaReferencia" etiqueta="Moneda" tipo="select" opciones={MONEDAS} valor={v.monedaReferencia ?? "BOB"} />
+      <Campo nombre="monedaReferencia" etiqueta="Moneda" tipo="select" opciones={MONEDAS} valor={v.monedaReferencia ?? "DOP"} />
       <Campo nombre="notas" etiqueta="Notas" tipo="textarea" completo valor={v.notas} />
     </>
   );

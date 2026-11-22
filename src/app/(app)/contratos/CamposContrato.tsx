@@ -43,7 +43,7 @@ export function CamposContrato({
       <Campo nombre="inicio" etiqueta="Fecha de inicio" tipo="date" requerido valor={v.inicio} />
       <Campo nombre="fin" etiqueta="Fecha de fin" tipo="date" requerido valor={v.fin} />
       <Campo nombre="renta" etiqueta="Renta mensual" tipo="number" requerido min={0} valor={v.renta} />
-      <Campo nombre="moneda" etiqueta="Moneda" tipo="select" opciones={MONEDAS} valor={v.moneda ?? "BOB"} />
+      <Campo nombre="moneda" etiqueta="Moneda" tipo="select" opciones={MONEDAS} valor={v.moneda ?? "DOP"} />
       <Campo nombre="garantia" etiqueta="Garantía" tipo="number" min={0} valor={v.garantia} />
       <Campo nombre="diaPago" etiqueta="Día de pago del mes" tipo="number" min={1} max={31} paso={1} valor={v.diaPago ?? 5} />
       <Campo nombre="notas" etiqueta="Notas" tipo="textarea" completo valor={v.notas} />

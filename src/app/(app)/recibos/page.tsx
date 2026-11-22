@@ -37,7 +37,7 @@ export default async function Recibos({ searchParams }: { searchParams: Promise<
       pagos.filter((p) => !p.anulado && p.metodo === m).map((p) => ({ moneda: p.moneda, monto: num(p.monto)! })),
       (p) => p.monto,
     ),
-  })).filter((x) => x.t.BOB || x.t.USD);
+  })).filter((x) => x.t.DOP || x.t.USD);
 
   return (
     <>

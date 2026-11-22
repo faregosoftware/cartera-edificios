@@ -33,14 +33,14 @@ export default async function Panel() {
   }
   const total = d.unidades.length;
   const ocupadas = d.unidades.filter((x) => x.actual);
-  const bs = ocupadas.filter((x) => x.actual!.moneda === "BOB").reduce((s, x) => s + x.actual!.renta, 0);
+  const dop = ocupadas.filter((x) => x.actual!.moneda === "DOP").reduce((s, x) => s + x.actual!.renta, 0);
   const usd = ocupadas.filter((x) => x.actual!.moneda === "USD").reduce((s, x) => s + x.actual!.renta, 0);
   const porVencer = d.contratos.filter((c) => c.estado === "Por vencer");
   const vencidos = d.contratos.filter((c) => c.estado === "Vencido");
   const pct = total ? Math.round((ocupadas.length * 100) / total) : 0;
   const atender = [...vencidos, ...porVencer].sort((a, b) => a.fin.localeCompare(b.fin)).slice(0, 8);
   const libres = d.unidades.filter((x) => !x.actual);
-  let vencidoCobros: { BOB: number; USD: number } | null = null;
+  let vencidoCobros: { DOP: number; USD: number } | null = null;
   let contratosEnMora = 0;
   if (puede(u, "cobros.ver")) {
     await sincronizarCuotas();
@@ -61,8 +61,8 @@ export default async function Panel() {
           </div>
         </div>
         <div className="kpi">
-          <div className="l">Renta mensual Bs</div>
-          <div className="v">{formatoDinero(bs, "BOB")}</div>
+          <div className="l">Renta mensual RD$</div>
+          <div className="v">{formatoDinero(dop, "DOP")}</div>
           <div className="s">contratos en curso</div>
         </div>
         <div className="kpi">
@@ -101,7 +101,7 @@ export default async function Panel() {
                 <th className="num">Unidades</th>
                 <th className="num">Libres</th>
                 <th>Ocupación</th>
-                <th className="num">Renta Bs</th>
+                <th className="num">Renta RD$</th>
                 <th className="num">Renta US$</th>
               </tr>
             </thead>
@@ -121,7 +121,7 @@ export default async function Panel() {
                     <td>
                       <Barra pct={r.pct} />
                     </td>
-                    <td className="num">{r.bs ? formatoDinero(r.bs, "BOB") : "—"}</td>
+                    <td className="num">{r.dop ? formatoDinero(r.dop, "DOP") : "—"}</td>
                     <td className="num">{r.usd ? formatoDinero(r.usd, "USD") : "—"}</td>
                   </tr>
                 );
