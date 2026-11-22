@@ -7,6 +7,7 @@
     "dev": "next dev",
     "build": "prisma generate && next build",
     "vercel-build": "prisma generate && if [ \"$VERCEL_ENV\" = \"production\" ]; then prisma migrate deploy; fi && next build",
+    "build:hostinger": "prisma generate && prisma migrate deploy && next build",
     "start": "next start",
     "lint": "next lint",
     "typecheck": "tsc --noEmit",
