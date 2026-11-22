@@ -4,7 +4,7 @@ import { fechaISO, num } from "./convertir";
 import { estadoContrato, hoyEn, ocupa, type EstadoContrato } from "./negocio";
 
 export function hoyApp(): string {
-  return hoyEn(process.env.APP_TZ || "America/La_Paz");
+  return hoyEn(process.env.APP_TZ || "America/Santo_Domingo");
 }
 
 export type ContratoVista = {
@@ -14,7 +14,7 @@ export type ContratoVista = {
   inicio: string;
   fin: string;
   renta: number;
-  moneda: "BOB" | "USD";
+  moneda: "DOP" | "USD";
   garantia: number | null;
   diaPago: number | null;
   finalizado: boolean;
@@ -33,7 +33,7 @@ export type UnidadVista = {
   superficie: number | null;
   dormitorios: number | null;
   rentaReferencia: number | null;
-  monedaReferencia: "BOB" | "USD";
+  monedaReferencia: "DOP" | "USD";
   notas: string | null;
   actual: ContratoVista | null;
   inquilinoActual: string | null;
@@ -89,15 +89,15 @@ export async function cargarCartera() {
   function resumenEdificio(edificioId: string) {
     const us = unidades.filter((u) => u.edificioId === edificioId);
     let ocupadas = 0,
-      bs = 0,
+      dop = 0,
       usd = 0;
     for (const u of us) {
       if (!u.actual) continue;
       ocupadas++;
       if (u.actual.moneda === "USD") usd += u.actual.renta;
-      else bs += u.actual.renta;
+      else dop += u.actual.renta;
     }
-    return { total: us.length, ocupadas, libres: us.length - ocupadas, pct: us.length ? Math.round((ocupadas * 100) / us.length) : 0, bs, usd };
+    return { total: us.length, ocupadas, libres: us.length - ocupadas, pct: us.length ? Math.round((ocupadas * 100) / us.length) : 0, dop, usd };
   }
 
   const nombreUnidad = (id: string) => {

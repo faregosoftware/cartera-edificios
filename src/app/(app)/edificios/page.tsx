@@ -41,10 +41,10 @@ export default async function Edificios() {
                   </div>
                   <div>
                     <b>
-                      {r.bs || r.usd ? (
+                      {r.dop || r.usd ? (
                         <>
-                          {r.bs ? formatoDinero(r.bs, "BOB") : null}
-                          {r.bs && r.usd ? <br /> : null}
+                          {r.dop ? formatoDinero(r.dop, "DOP") : null}
+                          {r.dop && r.usd ? <br /> : null}
                           {r.usd ? formatoDinero(r.usd, "USD") : null}
                         </>
                       ) : (

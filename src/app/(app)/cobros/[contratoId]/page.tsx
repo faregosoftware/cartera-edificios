@@ -46,7 +46,7 @@ export default async function EstadoDeCuenta({ params }: { params: Promise<{ con
       </Cabecera>
 
       <div className="kpis">
-        <div className={`kpi${vencido.BOB || vencido.USD ? " alert" : ""}`}>
+        <div className={`kpi${vencido.DOP || vencido.USD ? " alert" : ""}`}>
           <div className="l">Vencido</div>
           <div className="v">
             <Montos t={vencido} />

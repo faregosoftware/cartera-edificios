@@ -15,7 +15,7 @@ App web para administrar una cartera de edificios: unidades, inquilinos, contrat
 
 ## Funciones
 
-- **Panel:** ocupación, renta mensual en Bs y US$, contratos por vencer en los próximos 60 días y vencidos, unidades libres.
+- **Panel:** ocupación, renta mensual en RD$ y US$, contratos por vencer en los próximos 60 días y vencidos, unidades libres.
 - **Edificios, unidades, inquilinos:** alta, edición, eliminación (protegida si tiene registros relacionados) y búsqueda.
 - **Contratos:** registrar, editar, **renovar** (crea el contrato nuevo y finaliza el anterior en una transacción), **finalizar** con fecha de salida y eliminar. No permite dos contratos que se crucen en fechas para la misma unidad.
 - **Cobros:** cada contrato genera sola su cuota mensual. El período empieza el mismo día que el contrato y vence el día de pago. Desde el estado de cuenta se registran pagos totales o parciales (efectivo, transferencia, QR, depósito o cheque) y se emite un **recibo numerado e imprimible**, con el monto en letras. Los recibos se pueden anular dejando registrado el motivo, y las cuotas se pueden ajustar por descuentos o prorrateos.
@@ -72,17 +72,17 @@ La base de datos sigue en **Neon**: los planes Web y Cloud de Hostinger no ofrec
    - Node version: **22.x**
    - Package manager: **npm**
    - Build command: `npm run build:hostinger` (genera Prisma, aplica las migraciones pendientes y compila)
-4. Variables de entorno: `DATABASE_URL` (la de Neon), `APP_TZ=America/La_Paz`, `NOMBRE_EMPRESA` y, si quieres, `RECIBO_NIT`, `RECIBO_DIRECCION` y `RECIBO_TELEFONO`.
+4. Variables de entorno: `DATABASE_URL` (la de Neon), `APP_TZ=America/Santo_Domingo`, `NOMBRE_EMPRESA` y, si quieres, `RECIBO_RNC`, `RECIBO_DIRECCION` y `RECIBO_TELEFONO`.
 5. Haz clic en **Deploy**. Cada push a `main` vuelve a publicar la app. Si un deploy falla, sigue en línea la versión anterior.
 6. Activa el SSL del dominio, porque la cookie de sesión exige HTTPS en producción.
 
 ## Despliegue en Vercel (alternativa)
 
 1. Crea una base PostgreSQL administrada (Neon, Supabase, Railway…) y copia su `DATABASE_URL`.
-2. Despliega el repositorio en Vercel o Railway con estas variables: `DATABASE_URL` y `APP_TZ=America/La_Paz`. Agrega `ADMIN_*` solo para la carga inicial.
+2. Despliega el repositorio en Vercel o Railway con estas variables: `DATABASE_URL` y `APP_TZ=America/Santo_Domingo`. Agrega `ADMIN_*` solo para la carga inicial.
 3. Ejecuta una vez `npm run db:migrate && npm run db:seed` contra esa base.
 4. En Vercel, cada deploy de producción aplica las migraciones pendientes (`vercel-build`).
-5. Opcional: `NOMBRE_EMPRESA` (menú, ingreso y recibos), y `RECIBO_NIT`, `RECIBO_DIRECCION` y `RECIBO_TELEFONO` para el encabezado de los recibos.
+5. Opcional: `NOMBRE_EMPRESA` (menú, ingreso y recibos), y `RECIBO_RNC`, `RECIBO_DIRECCION` y `RECIBO_TELEFONO` para el encabezado de los recibos.
 6. Usa siempre HTTPS. En producción la cookie de sesión se marca como `secure`.
 
 ## Estructura

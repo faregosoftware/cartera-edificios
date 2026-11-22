@@ -26,7 +26,7 @@ export const enteroOpcional = (campo: string, min: number, max: number) =>
   );
 export const fecha = (campo: string) =>
   z.string({ required_error: `Indica ${campo}.` }).refine(esFechaValida, `Indica una fecha válida para ${campo}.`);
-export const moneda = z.enum(["BOB", "USD"]).default("BOB");
+export const moneda = z.enum(["DOP", "USD"]).default("DOP");
 
 export function leer<T extends z.ZodTypeAny>(esquema: T, fd: FormData): { ok: true; datos: z.infer<T> } | { ok: false; error: string } {
   const r = esquema.safeParse(Object.fromEntries(fd.entries()));

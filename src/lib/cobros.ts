@@ -145,11 +145,11 @@ function apocopar(s: string): string {
   return s.replace(/veintiuno$/, "veintiún").replace(/uno$/, "un");
 }
 
-/** "Son: Tres mil doscientos 50/100 Bolivianos" */
-export function montoEnLetras(monto: number, moneda: "BOB" | "USD"): string {
+/** "Tres mil doscientos 50/100 Pesos Dominicanos" */
+export function montoEnLetras(monto: number, moneda: "DOP" | "USD"): string {
   const enteros = Math.floor(redondear(monto));
   const centavos = Math.round((redondear(monto) - enteros) * 100);
   const letras = numeroALetras(enteros);
-  const moned = moneda === "USD" ? "Dólares Estadounidenses" : "Bolivianos";
+  const moned = moneda === "USD" ? "Dólares Estadounidenses" : "Pesos Dominicanos";
   return `${letras.charAt(0).toUpperCase()}${letras.slice(1)} ${dos(centavos)}/100 ${moned}`;
 }

@@ -7,7 +7,7 @@ export function CamposEdificio({ v = {} }: { v?: Valores }) {
     <>
       <Campo nombre="nombre" etiqueta="Nombre del edificio" requerido completo valor={v.nombre} />
       <Campo nombre="direccion" etiqueta="Dirección" valor={v.direccion} />
-      <Campo nombre="ciudad" etiqueta="Ciudad" valor={v.ciudad ?? "La Paz"} />
+      <Campo nombre="ciudad" etiqueta="Ciudad" valor={v.ciudad ?? "Santo Domingo"} />
       <Campo nombre="notas" etiqueta="Notas" tipo="textarea" completo valor={v.notas} />
     </>
   );

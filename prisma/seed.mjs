@@ -41,21 +41,21 @@ async function main() {
   }
 
   if (process.env.SEED_DEMO === "1" && (await prisma.edificio.count()) === 0) {
-    const e1 = await prisma.edificio.create({ data: { nombre: "Edificio Illimani", direccion: "Av. 20 de Octubre 2150, Sopocachi", ciudad: "La Paz" } });
-    const e2 = await prisma.edificio.create({ data: { nombre: "Torre Calacoto", direccion: "Calle 15 de Calacoto 8020", ciudad: "La Paz" } });
-    const u1 = await prisma.unidad.create({ data: { edificioId: e1.id, codigo: "2A", piso: "2", superficie: 85, dormitorios: 2, rentaReferencia: 3200 } });
-    await prisma.unidad.create({ data: { edificioId: e1.id, codigo: "3B", piso: "3", superficie: 110, dormitorios: 3, rentaReferencia: 4100 } });
-    const u3 = await prisma.unidad.create({ data: { edificioId: e1.id, codigo: "Local 1", tipo: "Local comercial", piso: "PB", superficie: 60, rentaReferencia: 5500 } });
+    const e1 = await prisma.edificio.create({ data: { nombre: "Torre Piantini", direccion: "Av. Gustavo Mejía Ricart 54, Piantini", ciudad: "Santo Domingo" } });
+    const e2 = await prisma.edificio.create({ data: { nombre: "Residencial Naco", direccion: "Calle Fantino Falco 12, Naco", ciudad: "Santo Domingo" } });
+    const u1 = await prisma.unidad.create({ data: { edificioId: e1.id, codigo: "2A", piso: "2", superficie: 85, dormitorios: 2, rentaReferencia: 35000 } });
+    await prisma.unidad.create({ data: { edificioId: e1.id, codigo: "3B", piso: "3", superficie: 110, dormitorios: 3, rentaReferencia: 45000 } });
+    const u3 = await prisma.unidad.create({ data: { edificioId: e1.id, codigo: "Local 1", tipo: "Local comercial", piso: "PB", superficie: 60, rentaReferencia: 60000 } });
     const u4 = await prisma.unidad.create({ data: { edificioId: e2.id, codigo: "501", tipo: "Oficina", piso: "5", superficie: 72, rentaReferencia: 650, monedaReferencia: "USD" } });
     await prisma.unidad.create({ data: { edificioId: e2.id, codigo: "802", piso: "8", superficie: 140, dormitorios: 3, rentaReferencia: 900, monedaReferencia: "USD" } });
-    const i1 = await prisma.inquilino.create({ data: { nombre: "María Quispe Mamani", documento: "4589123 LP", telefono: "+591 71234567" } });
-    const i2 = await prisma.inquilino.create({ data: { nombre: "Farmacia San Miguel S.R.L.", tipoDoc: "NIT", documento: "1020304025" } });
-    const i3 = await prisma.inquilino.create({ data: { nombre: "Consultora Andina S.A.", tipoDoc: "NIT", documento: "3041526017" } });
+    const i1 = await prisma.inquilino.create({ data: { nombre: "María Rodríguez Peña", documento: "001-1234567-8", telefono: "+1 809 555 0101" } });
+    const i2 = await prisma.inquilino.create({ data: { nombre: "Farmacia San Miguel S.R.L.", tipoDoc: "RNC", documento: "1-01-23456-7" } });
+    const i3 = await prisma.inquilino.create({ data: { nombre: "Consultora Caribe S.A.", tipoDoc: "RNC", documento: "1-30-98765-4" } });
     const d = (s) => new Date(s + "T00:00:00Z");
     await prisma.contrato.createMany({
       data: [
-        { unidadId: u1.id, inquilinoId: i1.id, inicio: d("2026-03-01"), fin: d("2027-02-28"), renta: 3200, garantia: 6400, diaPago: 5 },
-        { unidadId: u3.id, inquilinoId: i2.id, inicio: d("2025-01-01"), fin: d("2026-12-31"), renta: 5500, garantia: 11000, diaPago: 10 },
+        { unidadId: u1.id, inquilinoId: i1.id, inicio: d("2026-03-01"), fin: d("2027-02-28"), renta: 35000, garantia: 70000, diaPago: 5 },
+        { unidadId: u3.id, inquilinoId: i2.id, inicio: d("2025-01-01"), fin: d("2026-12-31"), renta: 60000, garantia: 120000, diaPago: 10 },
         { unidadId: u4.id, inquilinoId: i3.id, inicio: d("2025-11-10"), fin: d("2026-11-09"), renta: 650, moneda: "USD", garantia: 1300, diaPago: 1 },
       ],
     });

@@ -9,7 +9,7 @@ import { leer, textoOpcional, textoRequerido, type Resultado } from "@/lib/formu
 
 const esquema = z.object({
   nombre: textoRequerido("el nombre del inquilino"),
-  tipoDoc: z.enum(TIPOS_DOC).default("CI"),
+  tipoDoc: z.enum(TIPOS_DOC).default("Cédula"),
   documento: textoOpcional,
   telefono: textoOpcional,
   email: z.preprocess(

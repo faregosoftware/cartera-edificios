@@ -47,7 +47,7 @@ export default async function RegistrarPago({ params }: { params: Promise<{ id: 
       </div>
       <div className="form">
         <FormAccion action={registrarPago.bind(null, id)}>
-          <Campo nombre="monto" etiqueta={`Monto recibido (${c.moneda === "USD" ? "US$" : "Bs"})`} tipo="number" requerido min={0.01} max={c.saldo} valor={c.saldo} />
+          <Campo nombre="monto" etiqueta={`Monto recibido (${c.moneda === "USD" ? "US$" : "RD$"})`} tipo="number" requerido min={0.01} max={c.saldo} valor={c.saldo} />
           <Campo nombre="fecha" etiqueta="Fecha del pago" tipo="date" requerido valor={hoyApp()} />
           <Campo nombre="metodo" etiqueta="Forma de pago" tipo="select" requerido opciones={METODOS_PAGO} valor="Efectivo" />
           <Campo nombre="referencia" etiqueta="N.º de transacción o cheque" ayuda="Para transferencias, QR, depósitos o cheques." />

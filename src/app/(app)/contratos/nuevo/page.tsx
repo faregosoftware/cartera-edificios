@@ -35,7 +35,7 @@ export default async function NuevoContrato({ searchParams }: { searchParams: Pr
               inicio: d.hoy,
               fin: finPorDefecto(d.hoy),
               renta: u?.rentaReferencia ?? null,
-              moneda: u?.monedaReferencia ?? "BOB",
+              moneda: u?.monedaReferencia ?? "DOP",
             }}
           />
           <BotonesForm cancelar="/contratos" texto="Registrar contrato" />

@@ -4,7 +4,7 @@ import { prisma } from "@/lib/db";
 import { Aviso, Cabecera } from "@/components/ui";
 
 const fechaHora = (d: Date | null) =>
-  d ? d.toLocaleString("es-BO", { timeZone: process.env.APP_TZ || "America/La_Paz", dateStyle: "short", timeStyle: "short" }) : "Nunca";
+  d ? d.toLocaleString("es-DO", { timeZone: process.env.APP_TZ || "America/Santo_Domingo", dateStyle: "short", timeStyle: "short" }) : "Nunca";
 
 export default async function Usuarios({ searchParams }: { searchParams: Promise<{ creado?: string }> }) {
   const u = await requirePermiso("usuarios.ver");
