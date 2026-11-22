@@ -61,7 +61,22 @@ npm run dev                   # http://localhost:3000
 
 Ingresa con `ADMIN_EMAIL` y `ADMIN_PASSWORD`. La app te pedirá cambiar la contraseña.
 
-## Despliegue
+## Despliegue en Hostinger (Business Web Hosting o Cloud)
+
+La base de datos sigue en **Neon**: los planes Web y Cloud de Hostinger no ofrecen PostgreSQL.
+
+1. En hPanel ve a **Websites → Create site → Web App** y elige el dominio o subdominio (por ejemplo `app.tuempresa.com`). Un subdominio se crea como su propio sitio, no como subcarpeta.
+2. Elige **Import your Git repository**, conecta GitHub y selecciona `cartera-edificios`, rama `main`.
+3. En **Build and output settings**:
+   - Framework: **Next.js**
+   - Node version: **22.x**
+   - Package manager: **npm**
+   - Build command: `npm run build:hostinger` (genera Prisma, aplica las migraciones pendientes y compila)
+4. Variables de entorno: `DATABASE_URL` (la de Neon), `APP_TZ=America/La_Paz`, `NOMBRE_EMPRESA` y, si quieres, `RECIBO_NIT`, `RECIBO_DIRECCION` y `RECIBO_TELEFONO`.
+5. Haz clic en **Deploy**. Cada push a `main` vuelve a publicar la app. Si un deploy falla, sigue en línea la versión anterior.
+6. Activa el SSL del dominio, porque la cookie de sesión exige HTTPS en producción.
+
+## Despliegue en Vercel (alternativa)
 
 1. Crea una base PostgreSQL administrada (Neon, Supabase, Railway…) y copia su `DATABASE_URL`.
 2. Despliega el repositorio en Vercel o Railway con estas variables: `DATABASE_URL` y `APP_TZ=America/La_Paz`. Agrega `ADMIN_*` solo para la carga inicial.
